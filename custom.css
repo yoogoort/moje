@@ -51,6 +51,45 @@
   width: auto;
   height: auto;
 }
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-5px); }
+  100% { transform: translateX(0); }
+}
+.smt-wrapper.closed .follow-close-button svg {
+  animation: shake 1s infinite !important;
+}
+
+.smt-wrapper.opened .follow-close-button svg {
+  animation: none !important;
+}
+
+.follow-close-button:hover path {
+  fill: red !important;
+  animation: none !important;
+}
+
+.follow-close-button path {
+  fill: #fff !important;
+}
+
+.smt-app-social_follow_bar .smt-wrapper .follow-close-button {
+  opacity: 1 !important;
+  width: 40px !important;
+  height: 40px !important;
+  background: #07000045 !important;
+  border-radius: 0% !important;
+  margin-left: 0px !important;
+  margin-top: 5px !important;
+  transition: all 0.3s !important;
+}
+
+.follow-close-button:hover path {
+  fill: red !important;
+}
+
 .exis a:hover {
   color: var(--first-color);
 }
@@ -1607,7 +1646,7 @@ input[type='checkbox']:checked + .checkbox-label::after {
   text-align: left;
   text-align: left;
   color: var(--second-color-dark);
-  font-weight: 600;
+  font-weight: 700;
   font-size: 19px;
   line-height: 24px;
   text-transform: none;
@@ -3322,18 +3361,18 @@ p {
 .product-short-features { 
   color: #888888;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 16px;
 }
 .product-short-features dl{
-  display: flex;
+  display: inline-table;
   margin-bottom: 0;
   gap: 3px;
   font-weight: 600;
-  justify-content: center;
+  justify-content: left;
   line-height: 15px;
 } 
 .product-short-features dd{ 
-  margin-left: 3px;
+  margin-left: 0px;
   font-weight: 600;
 }
 .product-short-features dt::after{ 

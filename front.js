@@ -2,18 +2,20 @@
  * Custom code goes here.
  * A template should always ship with an empty custom.js
  */
-$(document).ready(function() {
+$(document).ready(function () {
   // Function to check and update display property
   function updateBannerDisplay() {
-      var productHidden = $('.js-product.product.col-xs-6.col-sm-4.col-md-4.col-lg-4.col-xl-3.js-product2.long_product').is(function() {
-          return $(this).css('display') === 'none';
-      });
+    var productHidden = $(
+      '.js-product.product.col-xs-6.col-sm-4.col-md-4.col-lg-4.col-xl-3.js-product2.long_product'
+    ).is(function () {
+      return $(this).css('display') === 'none';
+    });
 
-      if (productHidden) {
-          $('.banner-wrapper').css('display', 'none');
-      } else {
-          $('.banner-wrapper').css('display', 'flex');
-      }
+    if (productHidden) {
+      $('.banner-wrapper').css('display', 'none');
+    } else {
+      $('.banner-wrapper').css('display', 'flex');
+    }
   }
 
   // Initial check on document ready
@@ -26,28 +28,33 @@ $(document).ready(function() {
   $(document).ajaxComplete(updateBannerDisplay);
 });
 
-$(document).ready(function() {
-  var observer = new MutationObserver(function(mutations) {
-      mutations.forEach(function(mutation) {
-          if (mutation.attributeName === "class") {
-              var target = $(mutation.target);
-              // Sprawdzanie czy klasa 'active' została dodana lub usunięta
-              if (target.hasClass('clicktext_show_submenu') && !target.hasClass('active')) {
-                  $('.smt-wrapper').show();
-              } else if (target.hasClass('clicktext_show_submenu active')) {
-                  $('.smt-wrapper').hide();
-              }
-          }
-      });
+$(document).ready(function () {
+  var observer = new MutationObserver(function (mutations) {
+    mutations.forEach(function (mutation) {
+      if (mutation.attributeName === 'class') {
+        var target = $(mutation.target);
+        // Sprawdzanie czy klasa 'active' została dodana lub usunięta
+        if (
+          target.hasClass('clicktext_show_submenu') &&
+          !target.hasClass('active')
+        ) {
+          $('.smt-wrapper').show();
+        } else if (target.hasClass('clicktext_show_submenu active')) {
+          $('.smt-wrapper').hide();
+        }
+      }
+    });
   });
 
   // Opcje dla observera
   var config = { attributes: true, attributeFilter: ['class'] };
 
   // Nasłuchiwanie zmian na elemencie 'mm_menus_ul'
-  var targetNode = document.querySelector('.mm_menus_ul.clicktext_show_submenu');
+  var targetNode = document.querySelector(
+    '.mm_menus_ul.clicktext_show_submenu'
+  );
   if (targetNode) {
-      observer.observe(targetNode, config);
+    observer.observe(targetNode, config);
   }
 });
 
@@ -78,30 +85,30 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
-  $(document).ready(function() {
+  $(document).ready(function () {
     console.log('DOM wczytany przez jQuery');
-    
+
     var layoutItem1 = $('#layoutItem1');
     console.log('layoutItem1:', layoutItem1);
-    
+
     if (layoutItem1.length) {
-        layoutItem1.on('click', function() {
-            console.log('layoutItem1 kliknięty');
-            
-            var bannerWrapper = $('.banner-wrapper');
-            console.log('bannerWrapper:', bannerWrapper);
-            
-            if (bannerWrapper.length) {
-                bannerWrapper.css('display', 'none');
-                console.log('banner-wrapper ukryty');
-            } else {
-                console.log('banner-wrapper nie znaleziony');
-            }
-        });
+      layoutItem1.on('click', function () {
+        console.log('layoutItem1 kliknięty');
+
+        var bannerWrapper = $('.banner-wrapper');
+        console.log('bannerWrapper:', bannerWrapper);
+
+        if (bannerWrapper.length) {
+          bannerWrapper.css('display', 'none');
+          console.log('banner-wrapper ukryty');
+        } else {
+          console.log('banner-wrapper nie znaleziony');
+        }
+      });
     } else {
-        console.log('layoutItem1 nie znaleziony');
+      console.log('layoutItem1 nie znaleziony');
     }
-});
+  });
   document.addEventListener('click', function () {
     document.querySelectorAll('.mm_columns_contents_ul').forEach((el) => {
       el.style.opacity = 0;
@@ -148,6 +155,7 @@ $(window).ready(function () {
   //   magic_sidebar();
   //   addLinkToArrow();
   // }
+  addFooterHandlers();
   menu_sticky();
   setLayoutHandler();
   indexChangeMenuAndSliderHeight();
@@ -175,6 +183,26 @@ $(window).on('scroll', function () {
     resizeWidthRightColumn();
   }
 });
+
+const addFooterHandlers = () => {
+  $('#footer .title.clearfix.hidden-md-up').each(function (index) {
+    var $this = $(this);
+
+    // Sprawdzenie, czy element posiada atrybuty data-toggle i data-target
+    if (!$this.attr('data-toggle') && !$this.attr('data-target')) {
+      // Dodanie atrybutów data-toggle i data-target
+      var uniqueTarget = 'collapse-' + index; // Unikatowa wartość data-target
+      $this.attr('data-toggle', 'collapse');
+      $this.attr('data-target', '#' + uniqueTarget);
+
+      // Znalezienie ul.collapse po elemencie title i przypisanie id
+      var $ul = $this.next('ul.collapse');
+      if ($ul.length) {
+        $ul.attr('id', uniqueTarget);
+      }
+    }
+  });
+};
 
 const addPhoneInHeader = () => {
   const phoneLink = $('<a>', {
@@ -1459,4 +1487,3 @@ class TextTypingAnimation {
     this.startTyping();
   }
 }
-

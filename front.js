@@ -1,1489 +1,1058 @@
-/*
- * Custom code goes here.
- * A template should always ship with an empty custom.js
- */
-$(document).ready(function () {
-  // Function to check and update display property
-  function updateBannerDisplay() {
-    var productHidden = $(
-      '.js-product.product.col-xs-6.col-sm-4.col-md-4.col-lg-4.col-xl-3.js-product2.long_product'
-    ).is(function () {
-      return $(this).css('display') === 'none';
-    });
-
-    if (productHidden) {
-      $('.banner-wrapper').css('display', 'none');
-    } else {
-      $('.banner-wrapper').css('display', 'flex');
-    }
-  }
-
-  // Initial check on document ready
-  updateBannerDisplay();
-
-  // Optional: Recheck when certain actions are performed, e.g., window resize, AJAX content load, etc.
-  $(window).resize(updateBannerDisplay);
-
-  // If your content is dynamically loaded you might need to check after AJAX completes
-  $(document).ajaxComplete(updateBannerDisplay);
-});
-
-$(document).ready(function () {
-  var observer = new MutationObserver(function (mutations) {
-    mutations.forEach(function (mutation) {
-      if (mutation.attributeName === 'class') {
-        var target = $(mutation.target);
-        // Sprawdzanie czy klasa 'active' została dodana lub usunięta
-        if (
-          target.hasClass('clicktext_show_submenu') &&
-          !target.hasClass('active')
-        ) {
-          $('.smt-wrapper').show();
-        } else if (target.hasClass('clicktext_show_submenu active')) {
-          $('.smt-wrapper').hide();
-        }
-      }
-    });
-  });
-
-  // Opcje dla observera
-  var config = { attributes: true, attributeFilter: ['class'] };
-
-  // Nasłuchiwanie zmian na elemencie 'mm_menus_ul'
-  var targetNode = document.querySelector(
-    '.mm_menus_ul.clicktext_show_submenu'
-  );
-  if (targetNode) {
-    observer.observe(targetNode, config);
-  }
-});
-
-/*
- * linie 9-67 odpowiadają za zamianę hovera w menu na kliknięcia
- */
-document.addEventListener('DOMContentLoaded', function () {
-  const tabsLi = document.querySelectorAll('.mm_tabs_li');
-
-  tabsLi.forEach((tab) => {
-    tab.addEventListener('click', function (event) {
-      event.stopPropagation();
-
-      const contentsUl = this.querySelector('.mm_columns_contents_ul');
-
-      if (contentsUl.style.visibility === 'visible') {
-        contentsUl.style.opacity = 0;
-        contentsUl.style.visibility = 'hidden';
-      } else {
-        document.querySelectorAll('.mm_columns_contents_ul').forEach((el) => {
-          el.style.opacity = 0;
-          el.style.visibility = 'hidden';
-        });
-
-        contentsUl.style.opacity = 1;
-        contentsUl.style.visibility = 'visible';
-      }
-    });
-  });
-
-  $(document).ready(function () {
-    console.log('DOM wczytany przez jQuery');
-
-    var layoutItem1 = $('#layoutItem1');
-    console.log('layoutItem1:', layoutItem1);
-
-    if (layoutItem1.length) {
-      layoutItem1.on('click', function () {
-        console.log('layoutItem1 kliknięty');
-
-        var bannerWrapper = $('.banner-wrapper');
-        console.log('bannerWrapper:', bannerWrapper);
-
-        if (bannerWrapper.length) {
-          bannerWrapper.css('display', 'none');
-          console.log('banner-wrapper ukryty');
-        } else {
-          console.log('banner-wrapper nie znaleziony');
-        }
-      });
-    } else {
-      console.log('layoutItem1 nie znaleziony');
-    }
-  });
-  document.addEventListener('click', function () {
-    document.querySelectorAll('.mm_columns_contents_ul').forEach((el) => {
-      el.style.opacity = 0;
-      el.style.visibility = 'hidden';
-    });
-  });
-});
-
-const liItems = document.querySelectorAll('.index-mega-menu-li-item');
-
-liItems.forEach((item) => {
-  item.addEventListener('click', function (event) {
-    event.stopPropagation();
-
-    const ulItem = this.querySelector('.index-mega-menu-ul-item');
-
-    document.querySelectorAll('.index-mega-menu-ul-item').forEach((el) => {
-      if (el !== ulItem) {
-        el.style.display = 'none';
-      }
-    });
-
-    if (ulItem.style.display === 'block') {
-      ulItem.style.display = 'none';
-    } else {
-      ulItem.style.display = 'block';
-    }
-  });
-});
-
-document.addEventListener('click', function () {
-  document.querySelectorAll('.index-mega-menu-ul-item').forEach((el) => {
-    el.style.display = 'none';
-  });
-});
-
-let bool_ready = false;
-
-$(window).ready(function () {
-  // index_menu();
-  // if ($(window).width() <= 992) {
-  //   magic_sidebar2();
-  // } else {
-  //   magic_sidebar();
-  //   addLinkToArrow();
-  // }
-  addFooterHandlers();
-  menu_sticky();
-  setLayoutHandler();
-  indexChangeMenuAndSliderHeight();
-  handleTabClick();
-  addFAQHandler();
-  addHandleGoOnClick();
-  addHandlesFaq();
-  addHandlesContact();
-  wrapFirstWordInSpan();
-  addPhoneInHeader();
-  setTimeout(() => {
-    resizeWidthRightColumn();
-  }, 100);
-  // new TextTypingAnimation().startTyping();
-});
-$(window).resize(function () {
-  indexChangeMenuAndSliderHeight();
-  resizeWidthRightColumn();
-});
-
-$(window).on('scroll', function () {
-  if ($('#product_column_right').length) {
-    resizeProductRightColumn();
-    checkRightProduct();
-    resizeWidthRightColumn();
-  }
-});
-
-const addFooterHandlers = () => {
-  $('#footer .title.clearfix.hidden-md-up').each(function (index) {
-    var $this = $(this);
-
-    // Sprawdzenie, czy element posiada atrybuty data-toggle i data-target
-    if (!$this.attr('data-toggle') && !$this.attr('data-target')) {
-      // Dodanie atrybutów data-toggle i data-target
-      var uniqueTarget = 'collapse-' + index; // Unikatowa wartość data-target
-      $this.attr('data-toggle', 'collapse');
-      $this.attr('data-target', '#' + uniqueTarget);
-
-      // Znalezienie ul.collapse po elemencie title i przypisanie id
-      var $ul = $this.next('ul.collapse');
-      if ($ul.length) {
-        $ul.attr('id', uniqueTarget);
-      }
-    }
-  });
-};
-
-const addPhoneInHeader = () => {
-  const phoneLink = $('<a>', {
-    href: 'tel:+48 58 664 88 61',
-    text: '',
-  });
-
-  const phoneIcon = $('<i>', {
-    class: 'fas fa-phone',
-  });
-
-  phoneLink.prepend(phoneIcon);
-
-  $('#menu_id_for_sm .hidden-md-up #_desktop_user_info').after(phoneLink);
-};
-
-const wrapFirstWordInSpan = () => {
-  // Zbieranie wszystkich elementów klasy "head-title"
-  const elements = document.querySelectorAll('.head-title');
-
-  elements.forEach((element) => {
-    // Pobieranie tekstu z elementu
-    const text = element.textContent.trim();
-
-    // Dzielenie tekstu na słowa
-    const words = text.split(' ');
-
-    if (words.length > 0) {
-      // Pierwsze słowo
-      const firstWord = words[0];
-
-      // Reszta tekstu bez pierwszego słowa
-      const restOfText = words.slice(1).join(' ');
-
-      // Tworzenie nowego HTML z opakowanym pierwszym słowem w span
-      const newHTML = `<span>${firstWord}</span> ${restOfText}`;
-
-      // Ustawianie nowego HTML wewnątrz elementu
-      element.innerHTML = newHTML;
-    }
-  });
-};
-
-const addHandlesContact = () => {
-  $('.contactHandler').click((e) => {
-    const target = e.target.id.slice(0, -4);
-    $('.contactHandler').removeClass('active');
-    $('.contactContent').removeClass('active');
-    $(e.target).addClass('active');
-    $(`#${target}`).addClass('active');
-  });
-};
-
-const addHandlesFaq = () => {
-  if ($('#handleFaq2').length && $('#handleFaq').length) {
-    $('#handleFaq2').click((e) => {
-      $('.faq-header-item').removeClass('active');
-      $('#faq').removeClass('active');
-
-      $(e.target).closest('.faq-header-item').addClass('active');
-      $('#faq2').addClass('active');
-    });
-
-    $('#handleFaq').click((e) => {
-      $('.faq-header-item').removeClass('active');
-      $('#faq2').removeClass('active');
-
-      $(e.target).closest('.faq-header-item').addClass('active');
-      $('#faq').addClass('active');
-    });
-  }
-};
-
-const addHandleGoOnClick = () => {
-  $('li.goOnClick').on('click', function () {
-    const urlElement = $(this).find('.ets_mm_url');
-    const hrefValue = urlElement.attr('href');
-    window.location.href = hrefValue;
-  });
-};
-
-const resizeWidthRightColumn = () => {
-  if ($('#product_column_right').length) {
-    const width = $('#product_column_right').width();
-    $('.product-right-container').width(width + 'px');
-  }
-
-  if ($('#sticky-box-container').length) {
-    const width = $('#sticky-box-container').width();
-    $('#sticky-box').width(width + 'px');
-  }
-};
-
-const addFAQHandler = () => {
-  const className = 'hidden-container';
-  if ($('#faq').length) {
-    $('#faq h2').click(function () {
-      $(this).parent().toggleClass(className);
-    });
-    $('#faq2 h2').click(function () {
-      $(this).parent().toggleClass(className);
-    });
-  }
-};
-
-const handleCmsCategory = (event) => {
-  const container = $(event.target).closest('.cms-menu-category');
-  const className = 'hidden-container';
-  // if (container.hasClass(className)) {
-  container.toggleClass(className);
-  // } else {
-  //   container.addClass(className);
-  // }
-};
-
-const handleTabClick = () => {
-  setTimeout(() => {
-    window.scrollBy(0, -1);
-    window.scrollBy(0, 1);
-  }, 200);
-};
-
-const addToCartHandler = () => {
-  setTimeout(() => {
-    const value =
-      parseFloat($('#free-delivery').val()) -
-      prestashop.cart.subtotals.products.amount;
-    const formattedValue = value.toLocaleString('pl-PL', {
-      style: 'decimal',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    });
-    if (value <= 0) {
-      $('.product-delivery-container .to-free-delivery').addClass('hidden');
-    } else {
-      $('.product-delivery-container .to-free-delivery span').html(
-        formattedValue
-      );
-    }
-  }, 500);
-};
-const goTo = (event, element) => {
-  document.getElementById(element).scrollIntoView({ behavior: 'smooth' });
-};
-const checkRightProduct = () => {
-  const heightTopSum =
-    $('.product-right-container').height() + $(window).scrollTop();
-  const containerHeight = $('#product_column_right').height();
-  if (heightTopSum > containerHeight) {
-    $('.product-right-container').addClass('fixedEnd');
-  } else {
-    $('.product-right-container').removeClass('fixedEnd');
-  }
-};
-
-const resizeProductRightColumn = () => {
-  setTimeout(() => {
-    if ($('#product_column_left').length) {
-      const height =
-        window.innerWidth > 991
-          ? $('.tabs').outerHeight(true) +
-            $('.product-left-container').height() +
-            30
-          : 'auto';
-      $('#product_column_right').height(height);
-    }
-  }, 500);
-  setTimeout(() => {
-    if ($('#product_column_left').length) {
-      const height =
-        window.innerWidth > 991
-          ? $('.tabs').outerHeight(true) +
-            $('.product-left-container').height() +
-            30
-          : 'auto';
-      $('#product_column_right').height(height);
-    }
-  }, 1000);
-};
-
-const indexChangeMenuAndSliderHeight = () => {
-  setTimeout(() => {
-    const indexMenu = document.getElementById('index-menu');
-    if (indexMenu) {
-      const carousel = document.getElementById('carousel').parentNode;
-
-      const maxHeight = carousel.clientHeight;
-      indexMenu.style.height = maxHeight + 'px';
-    }
-  }, 100);
-};
-
-const handleCheckboxNewsletter = (e) => {
-  $('#newsletter-main-container input[type="submit"]').each((i, item) => {
-    $(item).attr('disabled', !e.target.checked);
-  });
-};
-
-const addLinkToArrow = () => {
-  $('#magic_sidebar i.fa-chevron-right').click(function () {
-    var link = $(this).parent().find('.dropdown-item').attr('href');
-    window.location = link;
-  });
-};
-
-const setLayoutHandler = () => {
-  if ($('#layoutContainer').length) {
-    $('#layoutContainer div').each(function () {
-      addClickLayout($(this));
-    });
-  }
-};
-
-const addClickLayout = (el) => {
-  el.click(async function (event) {
-    if (!$(event.target).hasClass('active')) {
-      const type = el.attr('attr-type');
-
-      await $('#js-product-list').fadeTo('slow', 0, function () {
-        $('#content-wrapper').removeClass('short_products');
-        $('#content-wrapper').removeClass('long_products');
-
-        $.ajax({
-          type: 'GET',
-          url: '/pl/',
-          cache: false,
-          data: {
-            typeLayout: type,
-          },
-          success: function () {},
-        });
-        const className = type == 1 ? 'short_products' : 'long_products';
-        $('#content-wrapper').addClass(className);
-      });
-      await $('#js-product-list').fadeTo('slow', 1, function () {});
-    }
-  });
-};
-
-const handleCartBtn = (event, add) => {
-  const input = $(event.target).parent().find('input');
-  const value = parseInt($(input).val());
-  const newValue = value + (add ? 1 : -1);
-  if (newValue > 0) $(input).val(newValue);
-};
-
-function menu_sticky() {
-  if (
-    $('header#header .header-top').length &&
-    $('header#header #header_info').length
-  ) {
-    check();
-    $(window).on('scroll', function () {
-      check();
-    });
-
-    function check() {
-      $(window).scrollTop() >= $('header#header .header-top').offset().top
-        ? setFixed()
-        : false;
-      $(window).scrollTop() <= $('header#header #header_info')[0].clientHeight
-        ? unsetFixed()
-        : false;
-    }
-
-    function setFixed() {
-      $('header#header .header-top').css({
-        position: 'fixed',
-        top: '0',
-        width: '100%',
-        'z-index': '999',
-        'box-shadow': 'rgba(0, 0, 0, 0.22) 0px 0px 5px 0px',
-      });
-      $('#header_info').css(
-        'margin-bottom',
-        $('header#header .header-top')[0].clientHeight + 'px'
-      );
-      $('header#header').addClass('setFixed');
-    }
-
-    function unsetFixed() {
-      $('header#header .header-top').css({
-        position: '',
-        top: '',
-        width: '',
-        'z-index': '',
-        background: '',
-        'box-shadow': '',
-      });
-      $('#header_info').css('margin-bottom', '');
-      $('header#header').removeClass('setFixed');
-    }
-  }
-}
-
-async function index_menu() {
-  if ($('#index-menu').length) {
-    const categories_array = getCategories();
-
-    if (categories_array) {
-      for (let i = 0; i < categories_array.length; i++) {
-        $('#index-menu ul').append(categories_array[i]);
-      }
-    }
-
-    // addHandles();
-
-    // function addHandles() {
-    //   $(document).ready(function () {
-    //     $('#index-menu > ul > li').hover(function () {
-    //       closeAll();
-    //       $(this).addClass('active');
-    //     });
-    //   });
-    //   $('#index-menu, #index-menu .active .collapse').on(
-    //     'mouseleave',
-    //     function () {
-    //       closeAll();
-    //     }
-    //   );
-    // }
-
-    // function closeAll() {
-    //   $('#index-menu > ul > li').removeClass('active');
-    // }
-
-    function getCategories() {
-      if (
-        $('.display_tabs_in_full_width .mm_columns_ul.mm_columns_ul_tab').length
-      ) {
-        let array = [];
-
-        $(
-          '.display_tabs_in_full_width .mm_columns_ul.mm_columns_ul_tab li'
-        ).each(function () {
-          array.push($(this).html());
-        });
-        return array;
-      }
-    }
-  }
-}
-
-function magic_sidebar() {
-  if ($('#magic_sidebar_icon').length && $('.trigger_magic_sidebar').length) {
-    const css =
-      '#magic_sidebar{background: #fff;width:350px;overflow:visible;position:fixed;z-index:999;bottom:0;transition:left .35s;-webkit-transition:left .35s;-moz-transition:left .35s;-o-transition:left .35s;} #magic_sidebar.showed_siderbar{left:0;} #magic_sidebar.hidden_siderbar{left:-350px;} #magic_sidebar .cont{overflow-y:auto;overflow-x:hidden;height:100%;padding:30px 40px;position:relative;z-index:9;background:#fff;width:100%;left:0;}#magic_sidebar .cont > .content{height:auto;padding-top:10px;}#magic_sidebar .cont > .header{position:relative;padding:10px 0; font-weight:700;text-transform:uppercase;font-size:14px;border-bottom:1px solid #e3e3e3;}#magic_sidebar .cont > .content a{padding:5px 0;}#magic_sidebar .cont > .content li {font-size:14px;font-weight:600;position:relative}#magic_sidebar .cont > .content li i {position:absolute;left:0;top:50%;-webkit-transform:translate(0,-50%);-ms-transform:translate(0,-50%);transform:translate(0,-50%);right:-9px;text-align:right;padding:8px 0px;cursor:pointer;color:#a3a3a3;}#magic_sidebar .cont > .content li:hover i,#magic_sidebar .cont > .content li:hover a{color:#196ea5 !important}#magic_sidebar .cont > .content li i,#magic_sidebar .cont > .content li a,#magic_sidebar .cont > .header > i{transition: .15s;-webkit-transition: .15s;-moz-transition: .15s;-o-transition: .15s;} #magic_sidebar .submenu .cont{background:#f5f5f5;-webkit-box-shadow: inset 24px 0px 9px -24px #00000014;box-shadow: inset 24px 0px 9px -24px #00000014;} #magic_sidebar .submenu{position:absolute;top:0;bottom:0;left:0%;width:100%;background:#f5f5f5;z-index:1;;transition:left .35s;-webkit-transition:left .35s;-moz-transition:left .35s;-o-transition:left .35s;} #magic_sidebar .cont > .content li.active, #magic_sidebar .cont > .content li.active > i { color:#196ea5} #magic_sidebar .cont > .header > a{padding:0} #magic_sidebar .cont > .header > i{position:absolute;top:50%;left:100%;-webkit-transform:translate(50%,-50%);-ms-transform:translate(50%,-50%);transform:translate(50%,-50%);font-size:18px} #magic_sidebar .cont > .header > i:hover{color:#196ea5;cursor:pointer;}';
-
-    $('body').prepend(
-      '<style>' +
-        css +
-        '</style><div id="magic_sidebar" class="hidden_siderbar"><div class="cont"><div class="header"></div><div class="content"></div></div></div>'
-    );
-    $('body').prepend(
-      '<div id="sidebar_bg" class="trigger_magic_sidebar" style="background:#000;opacity:.5;position:fixed;width:100vw;height:100vh;top:0;left:0;z-index:999;display:none;" ></div'
-    );
-
-    topPositioning();
-
-    $('#magic_sidebar .header').html('<a href="/2-kategorie"></a>');
-    $('#magic_sidebar .header a').append(getHeader());
-    $('#magic_sidebar .content').append(
-      '<ul id="sidebar_categories_list" ></ul>'
-    );
-    const categories_array = getCategories();
-    if (categories_array) {
-      for (let i = 0; i < categories_array.length; i++) {
-        $('#magic_sidebar .content > ul').append(categories_array[i]);
-      }
-    }
-
-    $('#sidebar_categories_list li > div').each(function () {
-      $(this).parent().append('<i class="fas fa-chevron-right"></i>');
-    });
-
-    subsidebarEvents('#magic_sidebar');
-
-    $('#magic_sidebar_icon').mouseenter(function () {
-      if ($('#magic_sidebar').hasClass('hidden_siderbar')) {
-        openSideBar();
-      }
-    });
-
-    $('.category > .trigger_magic_sidebar').mouseenter(function () {
-      if ($('#magic_sidebar').hasClass('hidden_siderbar')) {
-        openSideBar();
-      }
-    });
-
-    $('.trigger_magic_sidebar').click(function () {
-      if ($('#magic_sidebar').hasClass('showed_siderbar')) {
-        close_submenu('#sub_sidebar-1');
-        close_submenu('#magic_sidebar');
-        closeSideBar();
-      }
-    });
-
-    $('#sidebar_bg').mouseenter(function () {
-      // closeSideBar();
-    });
-    $('#header_info').mouseenter(function () {
-      closeSideBar();
-    });
-    $('#top-menu > li:not(.category)').mouseenter(function () {
-      closeSideBar();
-    });
-
-    function closeSideBar() {
-      if (!$('#magic_sidebar').hasClass('showed_siderbar')) {
-        return;
-      }
-      close_submenu('*');
-
-      $('#magic_sidebar > .cont').find('li.active > i').click();
-      $('#sidebar_bg').css('display', 'none');
-      $('body').css('overflow', '');
-      $('#magic_sidebar').removeClass('showed_siderbar');
-      $('#magic_sidebar').addClass('hidden_siderbar');
-      $('#magic_sidebar_icon').addClass('fa-bars');
-      $('#magic_sidebar_icon').removeClass('fa-times');
-      $('.trigger_magic_sidebar > i.fa-caret-up').addClass('fa-caret-down');
-      $('.trigger_magic_sidebar > i.fa-caret-down').removeClass('fa-caret-up');
-      $('.trigger_magic_sidebar').removeClass('active');
-    }
-    function openSideBar() {
-      if (!$('#magic_sidebar').hasClass('hidden_siderbar')) {
-        return;
-      }
-
-      $('#sidebar_bg').css('display', 'block');
-      $('#magic_sidebar').removeClass('hidden_siderbar');
-      $('#magic_sidebar').addClass('showed_siderbar');
-      $('#magic_sidebar_icon').removeClass('fa-bars');
-      $('#magic_sidebar_icon').addClass('fa-times');
-      $('.trigger_magic_sidebar > i.fa-caret-down').addClass('fa-caret-up');
-      $('.trigger_magic_sidebar > i.fa-caret-up').removeClass('fa-caret-down');
-      $('.trigger_magic_sidebar').addClass('active');
-    }
-    function getTopDistance() {
-      let distance;
-
-      distance =
-        $('header#header .header-top').offset().top -
-        $(window).scrollTop() +
-        $('header#header .header-top')[0].clientHeight;
-
-      return distance;
-    }
-    function topPositioning() {
-      setTimeout(function () {
-        $('#magic_sidebar').css('top', getTopDistance() + 'px');
-        $('#sidebar_bg').css('top', getTopDistance() + 'px');
-      }, 500);
-      $(window).on('scroll', function () {
-        $('#magic_sidebar').css('top', getTopDistance() + 'px');
-        $('#sidebar_bg').css('top', getTopDistance() + 'px');
-      });
-    }
-    function getCategories() {
-      if ($('#top-menu > li.category li.category').length) {
-        let array = [];
-        let categories = '';
-        let tmp = 0;
-
-        $('#top-menu > li.category').each(function () {
-          array.push($(this).find('ul.top-menu').html());
-          $(this).children().eq(1).remove();
-          tmp += 1;
-          tmp != 1 ? $(this).remove() : false;
-        });
-        return array;
-      }
-    }
-    function getHeader() {
-      if ($('#top-menu > li.category > a').length) {
-        let tmp = 0;
-        $('#top-menu > li.category').eq(0).find('a > span').remove();
-        const header = $('#top-menu > li.category')
-          .eq(0)
-          .children()
-          .eq(0)
-          .text();
-        $('#top-menu > li.category').eq(0).children().eq(0).removeAttr('href');
-        $('#top-menu > li.category')
-          .eq(0)
-          .children()
-          .eq(0)
-          .addClass('trigger_magic_sidebar');
-        $('#top-menu > li.category')
-          .eq(0)
-          .children()
-          .eq(0)
-          .css('cursor', 'pointer');
-        $('#top-menu > li.category')
-          .eq(0)
-          .children()
-          .eq(0)
-          .append('<i class="fas fa-caret-down" style="margin-left:3px;"></i>');
-        return header;
-      }
-    }
-    function close_submenu(item, fnct) {
-      const Item = item;
-      const delay = 120;
-
-      if (item === '*') {
-        $('#magic_sidebar')
-          .find('.submenu.opened[data-depth="1"]')
-          .each(function (element) {
-            close($(element).attr('id'));
-          });
-      }
-
-      close(Item);
-
-      function close(id) {
-        const ID = id;
-        const subs = $(ID).find('.submenu.opened');
-        const subs_Q = $(ID).find('.submenu.opened').length - 1;
-        let Q = subs_Q;
-
-        subs.eq(Q).css('left', '0%');
-        subs.eq(Q).removeClass('opened');
-        if (subs_Q > 0) {
-          let loop = setInterval(function () {
-            Q -= 1;
-            subs.eq(Q).css('left', '0%');
-            subs.eq(Q).removeClass('opened');
-            if (Q == 0) {
-              clearInterval(loop);
-            }
-          }, delay);
-        }
-      }
-    }
-    function open_submenu(item) {
-      addLinkToArrow();
-      if (item) {
-        item = item.parent();
-        const depth = item.children().eq(0).attr('data-depth');
-        const content = item.children().eq(1).children().html();
-        const header = item.children().eq(0)[0].outerHTML;
-        create_sub_sidebar(header, content, depth);
-      }
-    }
-    function subsidebarEvents(id) {
-      $(".sub[data-parent='#sub_sidebar-1'] .category").each(function () {
-        $(this).hover(function () {
-          if ($(this).children().eq(2).html() == undefined) {
-            close_submenu('#sub_sidebar-1');
-          } else {
-            //open_submenu($(this).find('i.fa-chevron-right'));
-          }
-        });
-      });
-      $(
-        '#magic_sidebar > .cont > .content > #sidebar_categories_list > .category'
-      ).each(function () {
-        $(this).hover(function () {
-          if ($(this).children().eq(2).html() == undefined) {
-            close_submenu('#sub_sidebar-2');
-            close_submenu('#sub_sidebar-1');
-            close_submenu('#magic_sidebar');
-          } else {
-            //open_submenu($(this).find('i.fa-chevron-right'));
-          }
-        });
-      });
-      // $( id+' .dropdown-item').each( function () {
-      // 	if($(this).parent().find('i.fas')){
-      // 		$(this).hover( function () {
-      // 			const THIS = $(this);
-      // 			if ( !$(this).parent().hasClass('active') ) {
-      // 				if($(this).parent().parent().find('li.active').length > 0){
-      // 					let attr = $(this).parent().parent().attr('data-parent') == undefined ? '#magic_sidebar' : $(this).parent().parent().attr('data-parent');
-      // 					const Q = $(attr).find('.submenu.opened').length+1;
-      // 					const time = 120 * Q;
-      // 					$(this).parent().parent().find('li.active > i').hover();
-      // 					setTimeout( function () {
-      // 						THIS.hover();
-      // 					}, time );
-      // 					close_submenu("#sub_sidebar-1");
-      // 				}else {
-      // 				$(this).parent().addClass('active')
-      // 				open_submenu( $(this) )
-      // 				}
-      // 			} else if ($(this).parent().hasClass('active')) {
-      // 				let attr = $(this).parent().parent().attr('data-parent') == undefined ? '#magic_sidebar' : $(this).parent().parent().attr('data-parent');
-      // 				$(this).parent().removeClass('active')
-      // 				//close_submenu( attr );
-      // 			}
-      // 		} );
-      // 	}
-
-      // } );
-      $('.dropdown-item').hover(function () {
-        $(this)
-          .parent()
-          .parent()
-          .find('.category_active_background')
-          .removeClass('category_active_background');
-      });
-      $(id + ' i.fa-chevron-right').each(function () {
-        $(this).hover(function () {
-          if ($(this).parent().find('a').attr('data-depth') == '1') {
-            $('#sub_sidebar-2').attr('style', 'left: 0%;');
-          }
-          const THIS = $(this);
-          if (!$(this).parent().hasClass('active')) {
-            if ($(this).parent().parent().find('li.active').length > 0) {
-              let attr =
-                $(this).parent().parent().attr('data-parent') == undefined
-                  ? '#magic_sidebar'
-                  : $(this).parent().parent().attr('data-parent');
-              const Q = $(attr).find('.submenu.opened').length + 1;
-              const time = 120 * Q;
-              $(this).parent().parent().find('li.active > i').hover();
-              setTimeout(function () {
-                THIS.hover();
-              }, time);
-              close_submenu('#sub_sidebar-1');
-            } else {
-              $(this).parent().addClass('active');
-              $(this)
-                .parent()
-                .parent()
-                .find('.category')
-                .removeClass('category_active_background');
-              $(this).parent().addClass('category_active_background');
-              open_submenu($(this));
-            }
-          } else if ($(this).parent().hasClass('active')) {
-            let attr =
-              $(this).parent().parent().attr('data-parent') == undefined
-                ? '#magic_sidebar'
-                : $(this).parent().parent().attr('data-parent');
-            $(this).parent().removeClass('active');
-            //close_submenu( attr );
-          }
-        });
-      });
-
-      $(id + ' .header i.fa-times').each(function () {
-        $(this).click(function () {
-          let attr =
-            $(this).attr('data-parent') == undefined
-              ? '#magic_sidebar'
-              : $(this).attr('data-parent');
-          $(attr).find('li.category.active').removeClass('active');
-          close_submenu(attr);
-        });
-      });
-    }
-    function test() {
-      $('#sidebar_categories_list')
-        .prepend(`<li class="category" id="category-test1">
-                          <a class="dropdown-item dropdown-submenu" href="http://cp.exis24.pl/53-klucze-udarowe-1" data-depth="1">                                      
-                              Klucze udarowe 1
-                    </a>
-                          <div class="collapse" id="top_sub_menu_test1">
-                    <ul class="top-menu" data-depth="2">
-                          <li class="category" id="category-test2">
-                                <a class="dropdown-item" href="http://cp.exis24.pl/54-2" data-depth="2">
-                                    2"
-                          </a>
-                          <div class="collapse" id="top_sub_menu_test2">
-                          <ul class="top-menu" data-depth="3">
-                                <li class="category" id="category-test3">
-                                      <a class="dropdown-item" href="http://cp.exis24.pl/54-2" data-depth="3">
-                                          2"
-                                </a>
-                                <div class="collapse" id="top_sub_menu_test3">
-                                <ul class="top-menu" data-depth="4">
-                                      <li class="category" id="category-test4">
-                                            <a class="dropdown-item" href="http://cp.exis24.pl/54-2" data-depth="4">
-                                                2"
-                                      </a>
-                                      
-                                          </li>
-
-                                  </ul>
-                                </div>
-                                <i class="fas fa-chevron-right"></i>
-                                    </li>
-
-                            </ul>
-                          </div>
-                          <i class="fas fa-chevron-right"></i>
-                              </li>
-
-                      </ul>
-                    </div>
-                        <i class="fas fa-chevron-right"></i></li>`);
-    }
-    function create_sub_sidebar(header, content, depth) {
-      const id = '#sub_sidebar-' + depth;
-      const parent_depth = depth - 1;
-      const parent_id =
-        depth == 1 ? '#magic_sidebar' : '#sub_sidebar-' + parent_depth;
-      const array_content = [];
-      array_content[0] = header;
-      array_content[1] = content;
-
-      check(id, depth, array_content);
-
-      function check(id, depth, array_content) {
-        if (!$('#magic_sidebar ' + id).length) {
-          create(depth, array_content);
-        } else if ($('#magic_sidebar ' + id).length) {
-          construct(array_content, depth, parent_id);
-        }
-      }
-
-      function create(depth, array_content) {
-        if (parent_depth == 0 || $('#magic_sidebar ' + parent_id).length) {
-          //perent exist
-          construct(array_content, depth, parent_id);
-        } else if (
-          parent_depth > 0 &&
-          !$('#magic_sidebar ' + parent_id).length
-        ) {
-          //parent didn't exist
-          create(parent_depth);
-        }
-      }
-
-      function construct(array_content, depth, parent_id) {
-        const content = array_content;
-        const id = 'sub_sidebar-' + depth;
-        const times_id =
-          depth > 1 ? 'sub_sidebar-' + (depth - 1) : 'magic_sidebar';
-        const attr =
-          'id="' + id + '" class="submenu opened" data-depth="' + depth + '"';
-
-        if (!$('#' + id).length) {
-          $(parent_id).append(
-            '<div ' +
-              attr +
-              ' ><div class="cont"> <div class="header">' +
-              content[0] +
-              '<i class="fas fa-times" data-parent="#' +
-              times_id +
-              '"></i></div> <div class="content"><ul id="sidebar_categories_list" class="sub" data-parent="#' +
-              id +
-              '">' +
-              content[1] +
-              '</ul></div> </div> </div>'
-          );
-        } else if (
-          $('#' + id + ' > .cont > .header').length &&
-          $('#' + id + ' > .cont > .content > .sub').length
-        ) {
-          $('#' + id).addClass('opened');
-          $('#' + id + ' > .cont > .header').html(
-            content[0] +
-              '<i class="fas fa-times" data-parent="#' +
-              times_id +
-              '"></i>'
-          );
-          $('#' + id + ' > .cont > .content > .sub').html(content[1]);
-        }
-
-        setTimeout(function () {
-          $('#' + id).css('left', '100%');
-        }, 10);
-        subsidebarEvents('#' + id);
-      }
-    }
-  }
-}
-
-function magic_sidebar2() {
-  if ($('#magic_sidebar_icon').length && $('.trigger_magic_sidebar').length) {
-    const css =
-      '#magic_sidebar{background:#fff;width:400px;overflow:visible;position:fixed;z-index:999;bottom:0;transition:left .35s;-webkit-transition:left .35s;-moz-transition:left .35s;-o-transition:left .35s;} #magic_sidebar.showed_siderbar{left:0;} #magic_sidebar.hidden_siderbar{left:-400px;} #magic_sidebar .cont{overflow-y:auto;overflow-x:hidden;height:100%;padding:30px 40px;position:relative;z-index:9;background:#fff;width:100%;left:0;}#magic_sidebar .cont > .content{height:auto;padding-top:10px;}#magic_sidebar .cont > .header{position:relative;padding:10px 0; font-weight:700;text-transform:uppercase;font-size:14px;border-bottom:1px solid #e3e3e3;}#magic_sidebar .cont > .content a{padding:5px 0;}#magic_sidebar .cont > .content li {font-size:14px;font-weight:600;position:relative}#magic_sidebar .cont > .content li i {position:absolute;left:0%;top:50%;-webkit-transform:translate(0,-50%);-ms-transform:translate(0,-50%);transform:translate(0,-50%);right:-9px;text-align:right;padding:8px 0px;cursor:pointer;color:#a3a3a3;}#magic_sidebar .cont > .content li:hover i,#magic_sidebar .cont > .content li:hover a{color:#ed192d !important}#magic_sidebar .cont > .content li i,#magic_sidebar .cont > .content li a,#magic_sidebar .cont > .header > i{transition: .15s;-webkit-transition: .15s;-moz-transition: .15s;-o-transition: .15s;} #magic_sidebar .submenu .cont{-webkit-box-shadow: inset 24px 0px 9px -24px #00000014;box-shadow: inset 24px 0px 9px -24px #00000014;} #magic_sidebar .submenu{position:absolute;top:0;bottom:0;left:0%;width:100%;background:#f5f5f5;z-index:1;;transition:left .35s;-webkit-transition:left .35s;-moz-transition:left .35s;-o-transition:left .35s;} #magic_sidebar .cont > .content li.active, #magic_sidebar .cont > .content li.active > i { color:#ed192d} #magic_sidebar .cont > .header > a{padding:0;white-space:normal;} #magic_sidebar .cont > .header > i{position:absolute;top:50%;left:100%;-webkit-transform:translate(-100%,-50%);-ms-transform:translate(-100%,-50%);transform:translate(-100%,-50%);font-size:18px} #magic_sidebar > .cont > .header{pointer-events: none;} #magic_sidebar .cont > .header > i:hover{color:#ed192d;cursor:pointer;} @media (max-width: 767px) {#magic_sidebar{width:280px;}#magic_sidebar.hidden_siderbar{left:-280px;}}';
-
-    $('body').prepend(
-      '<style data_info="custom.js">' +
-        css +
-        '</style><div id="magic_sidebar" class="hidden_siderbar"><div class="cont"><div class="header"></div><div class="content"></div></div></div>'
-    );
-    $('body').prepend(
-      '<div id="sidebar_bg" class="trigger_magic_sidebar" style="background:#000;opacity:.5;position:fixed;width:100vw;height:100vh;top:0;left:0;z-index:999;display:none;" ></div'
-    );
-
-    topPositioning();
-
-    $('#magic_sidebar .header').html('<a href="/2-kategorie"></a>');
-    $('#magic_sidebar .header a').append(getHeader());
-    $('#magic_sidebar .content').append(
-      '<ul id="sidebar_categories_list" ></ul>'
-    );
-    const categories_array = getCategories();
-    if (categories_array) {
-      for (let i = 0; i < categories_array.length; i++) {
-        $('#magic_sidebar .content > ul').append(categories_array[i]);
-      }
-    }
-
-    $('#sidebar_categories_list li > div').each(function () {
-      $(this).parent().append('<i class="fas fa-chevron-right"></i>');
-    });
-
-    // test()
-
-    subsidebarEvents('#magic_sidebar');
-
-    addRestItems();
-
-    // trriger
-    // setTimeout( () => {
-    // 	$('#magic_sidebar_icon').click();
-    // 	$('#category-test1 > i').click();
-    // },300 );
-    // trriger
-
-    $('.trigger_magic_sidebar').click(function () {
-      if ($('#magic_sidebar').hasClass('hidden_siderbar')) {
-        openSideBar();
-      } else if ($('#magic_sidebar').hasClass('showed_siderbar')) {
-        closeSideBar();
-      }
-    });
-
-    var last_window_w = $(window).width();
-    $(window).resize(function () {
-      topPositioning();
-
-      var window_w = $(window).width(),
-        menu_tab_w = $('#magic_sidebar').width(),
-        subsidebars = $('#magic_sidebar div.submenu');
-      subsidebars_q = subsidebars.length;
-
-      if (window_w < last_window_w) {
-        for (var i = subsidebars_q - 1; i >= 0; i--) {
-          var menu_w = menu_tab_w + (i + 1) * menu_tab_w,
-            subsidebar = subsidebars.eq(i);
-
-          if (menu_w > window_w) {
-            if (
-              parseInt(subsidebar.css('left')) > 0 &&
-              subsidebar.hasClass('opened')
-            ) {
-              subsidebar.css('left', '0%');
-              subsidebar.css('z-index', '9');
-            } else if (
-              parseInt(subsidebar.css('left')) == 0 &&
-              !subsidebar.hasClass('opened')
-            ) {
-              subsidebar.css('left', '-100%');
-              setTimeout(function () {
-                subsidebar.css('z-index', '9');
-              }, 240);
-            }
-          }
-        }
-      } else if (window_w > last_window_w) {
-        for (var i = 0; i < subsidebars_q; i++) {
-          var menu_w = menu_tab_w + (i + 1) * menu_tab_w,
-            subsidebar = subsidebars.eq(i);
-
-          if (menu_w < window_w) {
-            if (
-              parseInt(subsidebar.css('left')) == 0 &&
-              subsidebar.hasClass('opened')
-            ) {
-              subsidebar.css('left', '100%');
-              setTimeout(function () {
-                subsidebar.css('z-index', '');
-              }, 240);
-            } else if (
-              parseInt(subsidebar.css('left')) < 0 &&
-              !subsidebar.hasClass('opened')
-            ) {
-              subsidebar.css('left', '0%');
-              subsidebar.css('z-index', '');
-            }
-          }
-        }
-      }
-
-      last_window_w = window_w;
-    });
-
-    function closeSideBar() {
-      $('#magic_sidebar > .cont').find('li.active > i').click();
-      $('#sidebar_bg').css('display', 'none');
-      $('body').css('overflow', '');
-      $('#magic_sidebar').removeClass('showed_siderbar');
-      $('#magic_sidebar').addClass('hidden_siderbar');
-      $('#magic_sidebar_icon').addClass('fa-bars');
-      $('#magic_sidebar_icon').removeClass('fa-times');
-      $('.trigger_magic_sidebar > i.fa-caret-up').addClass('fa-caret-down');
-      $('.trigger_magic_sidebar > i.fa-caret-down').removeClass('fa-caret-up');
-      $('.trigger_magic_sidebar').removeClass('active');
-    }
-    function openSideBar() {
-      $('#sidebar_bg').css('display', 'block');
-      $('#magic_sidebar').removeClass('hidden_siderbar');
-      $('#magic_sidebar').addClass('showed_siderbar');
-      $('#magic_sidebar_icon').removeClass('fa-bars');
-      $('#magic_sidebar_icon').addClass('fa-times');
-      $('.trigger_magic_sidebar > i.fa-caret-down').addClass('fa-caret-up');
-      $('.trigger_magic_sidebar > i.fa-caret-up').removeClass('fa-caret-down');
-      $('.trigger_magic_sidebar').addClass('active');
-    }
-    function getTopDistance() {
-      let distance;
-
-      distance =
-        $('header#header .header-top').offset().top -
-        $(window).scrollTop() +
-        $('header#header .header-top')[0].clientHeight;
-
-      return distance;
-    }
-    function topPositioning() {
-      setTimeout(function () {
-        $('#magic_sidebar').css('top', getTopDistance() + 'px');
-        $('#sidebar_bg').css('top', getTopDistance() + 'px');
-      }, 500);
-      $(window).on('scroll', function () {
-        $('#magic_sidebar').css('top', getTopDistance() + 'px');
-        $('#sidebar_bg').css('top', getTopDistance() + 'px');
-      });
-    }
-    function getCategories() {
-      if ($('#top-menu > li.category li.category').length) {
-        let array = [];
-        let categories = '';
-        let tmp = 0;
-        $('#top-menu > li.category').each(function () {
-          array.push($(this).find('ul.top-menu').html());
-          $(this).children().eq(1).remove();
-          tmp += 1;
-          tmp != 1 ? $(this).remove() : false;
-        });
-        // categories = '<ul id="sidebar_categories_list" >'+categories+'</ul>';
-        return array;
-      }
-    }
-    function getHeader() {
-      if ($('#top-menu > li.category > a').length) {
-        let tmp = 0;
-        $('#top-menu > li.category').eq(0).find('a > span').remove();
-        const header = $('#top-menu > li.category')
-          .eq(0)
-          .children()
-          .eq(0)
-          .text();
-        $('#top-menu > li.category').eq(0).children().eq(0).removeAttr('href');
-        $('#top-menu > li.category')
-          .eq(0)
-          .children()
-          .eq(0)
-          .addClass('trigger_magic_sidebar');
-        $('#top-menu > li.category')
-          .eq(0)
-          .children()
-          .eq(0)
-          .css('cursor', 'pointer');
-        $('#top-menu > li.category')
-          .eq(0)
-          .children()
-          .eq(0)
-          .append('<i class="fas fa-caret-down" style="margin-left:3px;"></i>');
-        return header;
-      }
-    }
-    function subsidebarEvents(id) {
-      $(id + ' i.fa-chevron-right').each(function () {
-        $(this).click(function () {
-          const THIS = $(this);
-          if (!$(this).parent().hasClass('active')) {
-            if ($(this).parent().parent().find('li.active').length > 0) {
-              let attr =
-                $(this).parent().parent().attr('data-parent') == undefined
-                  ? '#magic_sidebar'
-                  : $(this).parent().parent().attr('data-parent');
-              const Q = $(attr).find('.submenu.opened').length + 1;
-              const time = 120 * Q;
-              $(this).parent().parent().find('li.active > i').click();
-              setTimeout(function () {
-                THIS.click();
-              }, time);
-            } else {
-              $(this).parent().addClass('active');
-              open_submenu($(this));
-            }
-          } else if ($(this).parent().hasClass('active')) {
-            $(this).parent().removeClass('active');
-            let attr =
-              $(this).parent().parent().attr('data-parent') == undefined
-                ? '#magic_sidebar'
-                : $(this).parent().parent().attr('data-parent');
-            close_submenu(attr);
-          }
-        });
-      });
-
-      $(id + ' .header i.fa-times').each(function () {
-        $(this).click(function () {
-          let attr =
-            $(this).attr('data-parent') == undefined
-              ? '#magic_sidebar'
-              : $(this).attr('data-parent');
-          $(attr).find('li.category.active').removeClass('active');
-          close_submenu(attr);
-        });
-      });
-    }
-    function test() {
-      $('#sidebar_categories_list')
-        .prepend(`<li class="category" id="category-test1">
-                          	<a class="dropdown-item dropdown-submenu" href="http://cp.com.pl/53-klucze-udarowe-1" data-depth="1">                                      
-                                Klucze udarowe 1
-              				</a>
-                            <div class="collapse" id="top_sub_menu_test1">
-			          			<ul class="top-menu" data-depth="2">
-				                    <li class="category" id="category-test2">
-			                          	<a class="dropdown-item" href="http://cp.com.pl/54-2" data-depth="2">
-			                                2"
-				             	 		</a>
-				             	 		<div class="collapse" id="top_sub_menu_test2">
-						          			<ul class="top-menu" data-depth="3">
-							                    <li class="category" id="category-test3">
-						                          	<a class="dropdown-item" href="http://cp.com.pl/54-2" data-depth="3">
-						                                2"
-							             	 		</a>
-							             	 		<div class="collapse" id="top_sub_menu_test3">
-									          			<ul class="top-menu" data-depth="4">
-										                    <li class="category" id="category-test4">
-									                          	<a class="dropdown-item" href="http://cp.com.pl/54-2" data-depth="4">
-									                                2"
-										             	 		</a>
-										             	 		
-								                          	</li>
-
-										              	</ul>
-									              	</div>
-									              	<i class="fas fa-chevron-right"></i>
-					                          	</li>
-
-							              	</ul>
-						              	</div>
-						              	<i class="fas fa-chevron-right"></i>
-		                          	</li>
-
-				              	</ul>
-			              	</div>
-                          <i class="fas fa-chevron-right"></i></li>`);
-    }
-    function open_submenu(item) {
-      if (item) {
-        item = item.parent();
-        const depth = item.children().eq(0).attr('data-depth');
-        const content = item.children().eq(1).children().html();
-        const header = item.children().eq(0)[0].outerHTML;
-        create_sub_sidebar(header, content, depth);
-      }
-    }
-    function create_sub_sidebar(header, content, depth) {
-      const id = '#sub_sidebar-' + depth;
-      const parent_depth = depth - 1;
-      const parent_id =
-        depth == 1 ? '#magic_sidebar' : '#sub_sidebar-' + parent_depth;
-      const array_content = [];
-      array_content[0] = header;
-      array_content[1] = content;
-
-      check(id, depth, array_content);
-
-      function check(id, depth, array_content) {
-        if (!$('#magic_sidebar ' + id).length) {
-          create(depth, array_content);
-        } else if ($('#magic_sidebar ' + id).length) {
-          construct(array_content, depth, parent_id);
-        }
-      }
-
-      function create(depth, array_content) {
-        if (parent_depth == 0 || $('#magic_sidebar ' + parent_id).length) {
-          //perent exist
-          construct(array_content, depth, parent_id);
-        } else if (
-          parent_depth > 0 &&
-          !$('#magic_sidebar ' + parent_id).length
-        ) {
-          //parent didn't exist
-          create(parent_depth);
-        }
-      }
-
-      function construct(array_content, depth, parent_id) {
-        const content = array_content;
-        const id = 'sub_sidebar-' + depth;
-        const times_id =
-          depth > 1 ? 'sub_sidebar-' + (depth - 1) : 'magic_sidebar';
-        const attr =
-          'id="' + id + '" class="submenu opened" data-depth="' + depth + '"';
-
-        var window_w = $(window).width(),
-          menu_tab_w = $('#magic_sidebar').width(),
-          menu_w = menu_tab_w + depth * menu_tab_w;
-
-        if (!$('#' + id).length) {
-          $(parent_id).append(
-            '<div ' +
-              attr +
-              ' ><div class="cont"> <div class="header">' +
-              content[0] +
-              '<i class="fas fa-times" data-parent="#' +
-              times_id +
-              '"></i></div> <div class="content"><ul id="sidebar_categories_list" class="sub" data-parent="#' +
-              id +
-              '">' +
-              content[1] +
-              '</ul></div> </div> </div>'
-          );
-          if (menu_w > window_w) {
-            $('#' + id).css('left', '-100%');
-          }
-        } else if (
-          $('#' + id + ' > .cont > .header').length &&
-          $('#' + id + ' > .cont > .content > .sub').length
-        ) {
-          $('#' + id).addClass('opened');
-          $('#' + id + ' > .cont > .header').html(
-            content[0] +
-              '<i class="fas fa-times" data-parent="#' +
-              times_id +
-              '"></i>'
-          );
-          $('#' + id + ' > .cont > .content > .sub').html(content[1]);
-        }
-
-        setTimeout(function () {
-          if (menu_w > window_w) {
-            $('#' + id).css('z-index', '9');
-            $('#' + id).css('left', '0%');
-          } else {
-            $('#' + id).css('z-index', '');
-            $('#' + id).css('left', '100%');
-          }
-        }, 10);
-        subsidebarEvents('#' + id);
-      }
-    }
-    function close_submenu(item, fnct) {
-      const Item = item;
-      const delay = 120;
-
-      close(Item);
-
-      function close(id) {
-        const ID = id;
-        const subs = $(ID).find('.submenu.opened');
-        const subs_Q = $(ID).find('.submenu.opened').length - 1;
-        let Q = subs_Q;
-
-        if ($('#sub_sidebar-1').css('left') != '0px') {
-          subs.eq(Q).css('left', '0%');
-          subs.eq(Q).removeClass('opened');
-          if (subs_Q > 0) {
-            let loop = setInterval(function () {
-              Q -= 1;
-              subs.eq(Q).css('left', '0%');
-              subs.eq(Q).removeClass('opened');
-              if (Q == 0) {
-                clearInterval(loop);
-              }
-            }, delay);
-          }
-        } else {
-          subs.eq(Q).css('left', '-100%');
-          subs.eq(Q).removeClass('opened');
-          if (subs_Q > 0) {
-            let loop = setInterval(function () {
-              Q -= 1;
-              subs.eq(Q).css('left', '-100%');
-              subs.eq(Q).removeClass('opened');
-              if (Q == 0) {
-                clearInterval(loop);
-              }
-            }, delay);
-          }
-        }
-      }
-    }
-  }
-  function addRestItems() {
-    const dataListContainer = document.getElementById('_desktop_top_menu');
-    const dataListChilds = Array.from(
-      dataListContainer.querySelectorAll('li:not(#category-2)')
-    ).reverse();
-    const sidebarContainer = document.getElementById('sidebar_categories_list');
-    dataListChilds.forEach(function (li) {
-      const liClon = li.cloneNode(li);
-      liClon.classList.add('sidebar-from-menu');
-      sidebarContainer.prepend(liClon);
-    });
-  }
-}
-
-class TextTypingAnimation {
-  constructor() {
-    this.textsToType = [
-      'Profil LED',
-      'Akcesoria LED',
-      'Przysłony LED',
-      'Sterowniki LED',
-      'Zasilacze LED',
-      'Taśmy LED',
-      'Moduły LED',
-      'Części do lamp',
-      'Zawiesia linkowe',
-      'Oprawy',
-      'Stelaże',
-      'Komponenty elektroniczne',
-    ];
-    this.inputElement = $('#animationSearch');
-    this.currentTextIndex = 0;
-    this.currentCharIndex = 0;
-    this.typingInterval = null;
-    this.deleteInterval = null;
-
-    this.addEventHandlers();
-  }
-
-  addEventHandlers() {
-    this.inputElement.on('focus', () => this.handleFocus());
-    this.inputElement.on('blur', () => this.handleBlur());
-  }
-  typeText() {
-    const currentText = this.textsToType[this.currentTextIndex];
-
-    this.inputElement.val(currentText.substring(0, this.currentCharIndex));
-
-    if (this.currentCharIndex < currentText.length) {
-      this.currentCharIndex++;
-    } else {
-      clearInterval(this.typingInterval);
-      setTimeout(() => {
-        this.deleteText();
-      }, 2000);
-    }
-  }
-
-  deleteText() {
-    const currentText = this.textsToType[this.currentTextIndex];
-    this.deleteInterval = setInterval(() => {
-      this.currentCharIndex--;
-      this.inputElement.val(currentText.substring(0, this.currentCharIndex));
-
-      if (this.currentCharIndex <= 0) {
-        clearInterval(this.deleteInterval);
-        if (this.currentTextIndex >= this.textsToType.length - 1) {
-          this.currentTextIndex = 0;
-        } else {
-          this.currentTextIndex++;
-        }
-        this.startTyping();
-      }
-    }, 50);
-  }
-
-  startTyping() {
-    this.typingInterval = setInterval(() => this.typeText(), 100);
-  }
-
-  stopTyping() {
-    clearInterval(this.typingInterval);
-    clearInterval(this.deleteInterval);
-  }
-
-  handleFocus() {
-    this.stopTyping();
-    this.inputElement.val('');
-  }
-
-  handleBlur() {
-    this.startTyping();
-  }
-}
+<div class="builder-section aos-init aos-animate">
+  <div class="container">
+    <div class="row">
+      <div class="col-24">
+        <p style="text-align: center">
+          <span style="color: #000000">
+            <strong
+              >POLITYKA PRYWATNOŚCI WERSJA OBOWIĄZUJĄCA OD DNIA
+              1.01.2024.</strong
+            ></span
+          >
+        </p>
+        <p>
+          <span style="color: #000000">
+            <strong>Czym jest polityka prywatności?</strong>
+          </span>
+        </p>
+        <p>
+          <span style="color: #000000"
+            >Chcielibyśmy zapoznać Cię ze szczegółami przetwarzania przez nas
+            Twoich danych osobowych, aby dać Ci pełną wiedzę i komfort w
+            korzystaniu z naszej strony internetowej. W związku z tym, że sami
+            działamy w branży internetowej, wiemy jak ważna jest ochrona Twoich
+            danych osobowych. Dlatego dokładamy szczególnych starań, aby chronić
+            Twoją prywatność i informacje, które nam przekazujesz. Starannie
+            dobieramy i stosujemy odpowiednie środki techniczne, w szczególności
+            te o charakterze programistycznym i organizacyjnym, zapewniające
+            ochronę przetwarzanych danych osobowych. Nasza strona używa
+            szyfrowanej transmisji danych (SSL), co zapewnia ochronę
+            identyfikujących Cię danych. W naszej Polityce prywatności
+            znajdziesz wszystkie najważniejsze informacje odnośnie przetwarzania
+            przez nas Twoich danych osobowych. Prosimy Cię o jej przeczytanie i
+            obiecujemy, że nie zajmie Ci to więcej niż kilka minut.
+          </span>
+        </p>
+        <p>
+          <span style="color: #000000"
+            ><strong
+              >Kto jest administratorem strony internetowej
+              www.sklep.cezos.com?</strong
+            ></span
+          >
+        </p>
+        <p>
+          <span style="color: #000000"
+            >Kto jest administratorem strony internetowej
+            www.sklep.cezos.com?<br />Administratorem strony internetowej jest
+            "CEZOS" SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ SPÓŁKA KOMANDYTOWA z
+            siedzibą w Gdyni, pod adresem ul. Olgierda 88 B, 81-534 Gdynia,
+            zarejestrowana przez Sąd Rejonowy Gdańsk-Północ w Gdańsku, VIII
+            Wydział Gospodarczy Krajowego Rejestru Sądowego, KRS 0000585942, NIP
+            5860018456, REGON 190273058, BDO 000016804, reprezentowana przez
+            "CEZOS" SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ z siedzibą w Gdyni,
+            pod adresem ul. Olgierda 88 B, 81-534 Gdynia, zarejestrowana przez
+            Sąd Rejonowy Gdańsk-Północ w Gdańsku, VIII Wydział Gospodarczy
+            Krajowego Rejestru Sądowego, KRS 0000259812, NIP 5860101341, REGON
+            008103797, o kapitale zakładowym w wysokości 50 000,00 zł,
+            reprezentowana przez Zarząd, będącą jedynym komplementariuszem
+            spółki komandytowej (czyli: my).</span
+          >
+        </p>
+        <p>
+          <span style="color: #000000"> <strong>Dane osobowe</strong> </span>
+        </p>
+        <p>
+          <span style="color: #000000"
+            ><strong
+              >Jaki akt prawny reguluje przetwarzanie Twoich danych
+              osobowych?<br /></strong
+          ></span>
+        </p>
+        <p>
+          <span style="color: #000000"
+            >Twoje dane osobowe są przez nas zbierane i przetwarzane zgodnie z
+            przepisami Rozporządzenia Parlamentu Europejskiego i Rady (UE)
+            2016/679 z 27.04.2016 r. w sprawie ochrony osób fizycznych w związku
+            z przetwarzaniem danych osobowych i w sprawie swobodnego przepływu
+            takich danych oraz uchylenia dyrektywy 95/46/WE (ogólne
+            rozporządzenie o ochronie danych) (Dz.Urz. UE L 119, s. 1), zwanego
+            powszechnie: RODO. W zakresie nieuregulowanym przez RODO
+            przetwarzanie danych osobowych jest regulowane przez Ustawę o
+            ochronie danych osobowych z dnia 10 maja 2018 r.<br
+          /></span>
+        </p>
+        <p>
+          <span style="color: #000000"
+            ><strong
+              >Kto jest administratorem Twoich danych osobowych?</strong
+            ></span
+          >
+        </p>
+        <p>
+          <span style="color: #000000"
+            >Administratorem Twoich danych osobowych jest "CEZOS" SPÓŁKA Z
+            OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ SPÓŁKA KOMANDYTOWA z siedzibą w
+            Gdyni, pod adresem ul. Olgierda 88 B, 81-534 Gdynia, zarejestrowana
+            przez Sąd Rejonowy Gdańsk-Północ w Gdańsku, VIII Wydział Gospodarczy
+            Krajowego Rejestru Sądowego, KRS 0000585942, NIP 5860018456, REGON
+            190273058, BDO 000016804, reprezentowana przez "CEZOS" SPÓŁKA Z
+            OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ z siedzibą w Gdyni, pod adresem ul.
+            Olgierda 88 B, 81-534 Gdynia, zarejestrowana przez Sąd Rejonowy
+            Gdańsk-Północ w Gdańsku, VIII Wydział Gospodarczy Krajowego Rejestru
+            Sądowego, KRS 0000259812, NIP 5860101341, REGON 008103797, o
+            kapitale zakładowym w wysokości 50 000,00 zł, reprezentowana przez
+            Zarząd, będącą jedynym komplementariuszem spółki komandytowej,
+            telefon: +48 (58) 664 88 61, e-mail: sklep@cezos.com.</span
+          ><span style="color: #000000"></span>
+        </p>
+        <p>
+          <span style="color: #000000"
+            ><strong
+              >W sprawie swoich danych osobowych możesz skontaktować się z nami
+              za pomocą:</strong
+            ></span
+          >
+        </p>
+        <ul style="list-style-type: disc">
+          <li>
+            <span style="color: #000000"
+              >poczty elektronicznej: sklep@cezos.com,</span
+            >
+          </li>
+          <li>
+            <span style="color: #000000"
+              >poczty tradycyjnej: ul. Olgierda 88 B, 81-534 Gdynia,</span
+            ><span style="color: #000000"></span>
+          </li>
+          <li>
+            <span style="color: #000000"
+              >telefonu: +48 (58) 664 88 61.<br
+            /></span>
+          </li>
+        </ul>
+        <p style="text-align: justify">
+          <span style="color: #000000"
+            ><strong
+              >JAK PRZETWARZAMY TWOJE DANE OSOBOWE, KTÓRE NAM PODAJESZ?<br /></strong
+          ></span>
+        </p>
+        <p style="text-align: justify">
+          <span style="color: #000000"
+            ><strong
+              >Jakie dane osobowe przetwarzamy i w jakich celach je
+              przetwarzamy?</strong
+            ></span
+          >
+        </p>
+        <p style="text-align: justify">
+          <span style="color: #000000"
+            >Na naszej stronie internetowej oferujemy Ci wiele różnych usług,
+            dla których celów przetwarzamy różne dane osobowe, w oparciu o różne
+            podstawy prawne. <br
+          /></span>
+        </p>
+        <div>
+          <table
+            style="
+              width: 100%;
+              border: 1px solid #000000;
+              border-collapse: collapse;
+              line-height: 12px;
+              font-size: 10px;
+              text-align: left;
+            "
+          >
+            <tbody>
+              <tr>
+                <th style="border: 1px solid #000000; padding: 1px">Cel</th>
+                <th style="border: 1px solid #000000; padding: 1px">
+                  Dane osobowe
+                </th>
+                <th style="border: 1px solid #000000; padding: 1px">
+                  Podstawa prawna przetwarzania
+                </th>
+                <th style="border: 1px solid #000000; padding: 1px">
+                  Czas przechowywania danych
+                </th>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000000; padding: 1px">
+                  Zawarcie i wykonanie umowy
+                </td>
+                <td style="border: 1px solid #000000; padding: 1px">
+                  Imię, nazwisko, NIP, adres e-mail, numer telefonu, numer karty
+                  płatniczej
+                </td>
+                <td style="border: 1px solid #000000; padding: 1px">
+                  Art. 6 ust. 1 lit. b) RODO, tj. przetwarzanie w celu podjęcia
+                  działań na Twoje żądanie, przed zawarciem umowy oraz
+                  przetwarzanie niezbędne w celu wykonania umowy, której jesteś
+                  stroną
+                </td>
+                <td style="border: 1px solid #000000; padding: 1px">
+                  Do upływu okresu przedawnienia roszczeń dotyczących wykonania
+                  umowy
+                </td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000000; padding: 1px">
+                  Założenie i prowadzenie konta
+                </td>
+                <td style="border: 1px solid #000000; padding: 1px">
+                  Imię, nazwisko, adres e-mail, numer telefonu, adres
+                  korespondencyjny
+                </td>
+                <td style="border: 1px solid #000000; padding: 1px">
+                  Art. 6 ust. 1 lit. b) RODO, tj. przetwarzanie w celu podjęcia
+                  działań na Twoje żądanie, przed zawarciem umowy oraz
+                  przetwarzanie niezbędne w celu wykonania umowy, której jesteś
+                  stroną
+                </td>
+                <td style="border: 1px solid #000000; padding: 1px">
+                  Do upływu okresu przedawnienia roszczeń dotyczących wykonania
+                  umowy
+                </td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000000; padding: 1px">
+                  Dodawanie opinii
+                </td>
+                <td style="border: 1px solid #000000; padding: 1px">
+                  Nick, imię, nazwisko, adres e-mail
+                </td>
+                <td style="border: 1px solid #000000; padding: 1px">
+                  Art. 6 ust. 1 lit. f) RODO tj. przetwarzanie w celu realizacji
+                  naszego prawnie uzasadnionego interesu, polegającego na
+                  prezentowaniu na stronie sklepu internetowego opinii
+                  dotyczących towarów i przebiegu transakcji
+                </td>
+                <td style="border: 1px solid #000000; padding: 1px">
+                  Do momentu wniesienia sprzeciwu wobec przetwarzania danych
+                  osobowych
+                </td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000000; padding: 1px">
+                  Newsletter
+                </td>
+                <td style="border: 1px solid #000000; padding: 1px">
+                  Adres e-mail
+                </td>
+                <td style="border: 1px solid #000000; padding: 1px">
+                  Art. 6 ust. 1 lit. a) RODO, tj. przetwarzanie na podstawie
+                  wyrażonej przez Ciebie zgody na przetwarzanie Twoich danych
+                  osobowych
+                </td>
+                <td style="border: 1px solid #000000; padding: 1px">
+                  Do momentu cofnięcia zgody na przetwarzanie danych osobowych
+                </td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000000; padding: 1px">
+                  Formularz kontaktowy
+                </td>
+                <td style="border: 1px solid #000000; padding: 1px">
+                  Imię, nazwisko, adres e-mail, numer telefonu
+                </td>
+                <td style="border: 1px solid #000000; padding: 1px">
+                  Art. 6 ust. 1 lit. f) RODO tj. przetwarzanie w celu realizacji
+                  naszego prawnie uzasadnionego interesu, polegającego na
+                  utrzymywaniu ciągłości komunikacji i umożliwieniu kontaktu z
+                  nami w sprawach prowadzonej działalności gospodarczej
+                </td>
+                <td style="border: 1px solid #000000; padding: 1px">
+                  Do momentu wniesienia sprzeciwu wobec przetwarzania danych
+                  osobowych
+                </td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000000; padding: 1px">
+                  Formularz „zapytaj o produkt”
+                </td>
+                <td style="border: 1px solid #000000; padding: 1px">
+                  Imię, nazwisko, adres e-mail, numer telefonu
+                </td>
+                <td style="border: 1px solid #000000; padding: 1px">
+                  Art. 6 ust. 1 lit. f) RODO tj. przetwarzanie w celu realizacji
+                  naszego prawnie uzasadnionego interesu, polegającego na
+                  utrzymywaniu ciągłości komunikacji i umożliwieniu kontaktu z
+                  nami w sprawach prowadzonej działalności gospodarczej
+                </td>
+                <td style="border: 1px solid #000000; padding: 1px">
+                  Do momentu wniesienia sprzeciwu wobec przetwarzania danych
+                  osobowych
+                </td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000000; padding: 1px">
+                  Analiza ruchu na stronie sklepu internetowego
+                </td>
+                <td style="border: 1px solid #000000; padding: 1px">
+                  Adres IP, dane przeglądarki
+                </td>
+                <td style="border: 1px solid #000000; padding: 1px">
+                  Art. 6 ust. 1 lit. f) RODO, tj. przetwarzanie w celu
+                  realizacji naszego prawnie uzasadnionego interesu polegającego
+                  na analizie ruchu klientów na stronie sklepu
+                </td>
+                <td style="border: 1px solid #000000; padding: 1px">
+                  Do momentu wniesienia sprzeciwu wobec przetwarzania danych
+                  osobowych
+                </td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000000; padding: 1px">
+                  Marketing bezpośredni towarów i usług własnych, w tym
+                  remarketing
+                </td>
+                <td style="border: 1px solid #000000; padding: 1px">
+                  Adres pobytu, adres IP, dane przeglądarki
+                </td>
+                <td style="border: 1px solid #000000; padding: 1px">
+                  Art. 6 ust. 1 lit. f) RODO, tj. przetwarzanie w celu
+                  realizacji naszego prawnie uzasadnionego interesu polegającego
+                  na marketingu bezpośrednim usług własnych, w tym remarketingu
+                </td>
+                <td style="border: 1px solid #000000; padding: 1px">
+                  Do momentu wniesienia sprzeciwu wobec przetwarzania danych
+                  osobowych
+                </td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000000; padding: 1px">
+                  Ustalenie, dochodzenie i egzekucja roszczeń oraz obrona przed
+                  roszczeniami w postępowaniu przed sądami i innymi organami
+                  państwowymi
+                </td>
+                <td style="border: 1px solid #000000; padding: 1px">
+                  Imię, nazwisko, adres zamieszkania, nr PESEL, NIP, REGON,
+                  adres e-mail, nr telefonu, nr IP, nr rachunku bankowego, nr
+                  karty płatniczej
+                </td>
+                <td style="border: 1px solid #000000; padding: 1px">
+                  Art. 6 ust. 1 lit. f) RODO tj. przetwarzanie w celu realizacji
+                  naszego prawnie uzasadnionego interesu, polegającego na
+                  ustaleniu, dochodzeniu i egzekucji roszczeń oraz na obronie
+                  przed roszczeniami w postępowaniu przed sądami i innymi
+                  organami państwowymi
+                </td>
+                <td style="border: 1px solid #000000; padding: 1px">
+                  Do upływu okresu przedawnienia roszczeń dotyczących wykonania
+                  umowy
+                </td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000000; padding: 1px">
+                  Wypełnienie obowiązków prawnych wynikających z przepisów
+                  prawnych, w szczególności przepisów podatkowych i rachunkowych
+                </td>
+                <td style="border: 1px solid #000000; padding: 1px">
+                  Imię, nazwisko, firma, nr PESEL, NIP lub REGON, adres e-mail,
+                  nr telefonu, adres korespondencyjny, nr karty płatniczej
+                </td>
+                <td style="border: 1px solid #000000; padding: 1px">
+                  Art. 6 ust. 1 lit. c) RODO, tj. przetwarzanie jest niezbędne
+                  do wypełnienia obowiązków prawnych ciążących na nas,
+                  wynikających z przepisów prawa, w szczególności przepisów
+                  podatkowych i rachunkowych
+                </td>
+                <td style="border: 1px solid #000000; padding: 1px">
+                  Do momentu wygaśnięcia obowiązków prawnych ciążących na
+                  Administratorze, które uzasadniały przetwarzanie danych
+                  osobowych
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p style="text-align: justify">
+          <span style="color: #000000"><strong></strong></span>
+        </p>
+        <p style="text-align: justify">
+          <span style="color: #000000"
+            ><strong>Dobrowolność podania danych osobowych</strong></span
+          >
+        </p>
+        <p>
+          <span style="color: #000000"
+            >Podanie przez Ciebie wymaganych danych osobowych jest dobrowolne
+            ale stanowi warunek świadczenia przez nas usług na Twoją rzecz (np.
+            wysyłania newslettera czy założenia konta).</span
+          >
+        </p>
+        <p style="text-align: justify">
+          <span style="color: #000000"
+            ><strong>Odbiorcy danych osobowych</strong></span
+          >
+        </p>
+        <p>
+          <span style="color: #000000"
+            >Aktualną listę podmiotów, którym ujawniamy Twoje dane osobowe
+            możesz znaleźć <a href="#">tutaj</a>.</span
+          >
+        </p>
+        <p style="text-align: justify">
+          <span style="color: #000000"
+            ><strong
+              >Zautomatyzowane podejmowanie decyzji (w tym profilowanie)</strong
+            ></span
+          >
+        </p>
+        <p>
+          <span style="color: #000000"
+            >Nie podejmujemy wobec Ciebie decyzji w sposób zautomatyzowany ani
+            nie stosujemy profilowania.</span
+          >
+        </p>
+        <p style="text-align: justify">
+          <span style="color: #000000"
+            ><strong
+              >Czy będziemy przekazywać Twoje dane osobowe poza EOG lub do
+              organizacji międzynarodowej?</strong
+            ></span
+          >
+        </p>
+        <p>
+          <span style="color: #000000"
+            >W celu korzystania z narzędzi Google i Youtube, Twoje dane osobowe
+            mogą być przekazywane do Stanów Zjednoczonych, gdzie znajdują się
+            serwery Google LLC.</span
+          >
+        </p>
+        <p>
+          <span style="color: #000000"
+            >Google LLC figuruje w wykazie podmiotów uczestniczących w programie
+            Data Privacy Framework (<a
+              href="https://www.dataprivacyframework.gov/s/participant-search"
+              >link</a
+            >), w związku z czym ochrona danych osobowych jest adekwatna w
+            stosunku do regulacji obowiązujących w Unii Europejskiej, zgodnie z
+            Decyzją wykonawczą Komisji (UE) C(2023) 4745 z dnia 10 lipca 2023 r.
+            w sprawie odpowiedniego poziomu ochrony danych osobowych zgodnie z
+            EU-USA Data Privacy Framework (<a
+              href="https://eur-lex.europa.eu/legal-content/PL/TXT/PDF/?uri=CELEX:32023D1795&amp;qid=1710923455391"
+              >link</a
+            >).</span
+          >
+        </p>
+        <p>
+          <span style="color: #000000"
+            >W celu korzystania z narzędzi LinkedIn, Twoje dane osobowe mogą być
+            przekazywane do Stanów Zjednoczonych, gdzie znajdują się serwery
+            LinkedIn Corporation.</span
+          >
+        </p>
+        <p>
+          <span style="color: #000000"
+            >LinkedIn Corporation figuruje w wykazie podmiotów uczestniczących w
+            programie Data Privacy Framework (<a
+              href="https://eur-lex.europa.eu/legal-content/PL/TXT/PDF/?uri=CELEX:32023D1795&amp;qid=1710923455391"
+              >link</a
+            >), w związku z czym ochrona danych osobowych jest adekwatna w
+            stosunku do regulacji obowiązujących w Unii Europejskiej, zgodnie z
+            Decyzją wykonawczą Komisji (UE) C(2023) 4745 z dnia 10 lipca 2023 r.
+            w sprawie odpowiedniego poziomu ochrony danych osobowych zgodnie z
+            EU-USA Data Privacy Framework (<a
+              href="https://eur-lex.europa.eu/legal-content/PL/TXT/PDF/?uri=CELEX:32023D1795&amp;qid=1710923455391"
+              >link</a
+            >).</span
+          >
+        </p>
+        <p>
+          <span style="color: #000000"
+            >W celu korzystania z narzędzi Apple, Twoje dane mogą być
+            przekazywane poza EOG.</span
+          >
+        </p>
+        <p>
+          <span style="color: #000000"
+            >Dane osobowe dotyczące osób z Europejskiego Obszaru Gospodarczego,
+            Wielkiej Brytanii i Szwajcarii są kontrolowane przez firmę Apple
+            Distribution International Limited w Irlandii. Międzynarodowe
+            przekazywanie przez Apple danych osobowych zebranych w Europejskim
+            Obszarze Gospodarczym, Wielkiej Brytanii i Szwajcarii podlega
+            standardowym klauzulom umownym. Międzynarodowe przesyłanie przez
+            Apple danych osobowych zebranych w krajach uczestniczących we
+            współpracy gospodarczej Azji i Pacyfiku (APEC) odbywa się zgodnie z
+            systemem APEC Transgranicznej ochrony prywatności (CBPR) i systemem
+            rozpoznawania prywatności dla podmiotów przetwarzających (PRP) w
+            zakresie przesyłania danych osobowych.</span
+          >
+        </p>
+        <p>
+          <strong
+            ><span style="color: #000000"
+              >JAK PRZETWARZAMY TWOJE DANE OSOBOWE, KTÓRE OTRZYMUJEMY OD INNYCH
+              ADMINISTRATORÓW DANYCH (NP. FACEBOOKA)<br /></span></strong
+          ><strong><span style="color: #000000"></span></strong>
+        </p>
+        <ul>
+          <li>
+            <span style="color: #000000">Nasz sklep internetowy umożliwia:</span
+            ><strong><span style="color: #000000"></span></strong>
+          </li>
+          <li>
+            <strong><span style="color: #000000"></span></strong
+            ><span style="color: #000000"
+              >zalogowanie do konta w sklepie za pomocą Twojego profilu na
+              Facebooku,</span
+            ><span style="color: #000000"></span>
+          </li>
+          <li>
+            <span style="color: #000000"
+              >zalogowanie do konta w sklepie za pomocą Twojego konta
+              Google,</span
+            >
+          </li>
+          <li>
+            <span style="color: #000000"
+              >zalogowanie do konta w sklepie za pomocą Twojego konta w serwisie
+              LinkedIn,</span
+            >
+          </li>
+          <li>
+            <span style="color: #000000"
+              >zalogowanie do konta w sklepie za pomocą Twojego konta
+              Apple.</span
+            ><span style="color: #000000"></span
+            ><span style="color: #000000"></span
+            ><span style="color: #000000"></span
+            ><span style="color: #000000"></span
+            ><span style="color: #000000"></span>
+          </li>
+        </ul>
+        <p>
+          <span style="color: #000000"
+            >W takich wypadkach, otrzymujemy Twoje dane osobowe nie bezpośrednio
+            od Ciebie, a od serwisów dostarczających te funkcjonalności, tj:
+            Facebook, Google, Apple, LinkedIn. Aby umożliwić Ci pełną kontrolę
+            nad Twoimi danymi, poniżej zamieszczamy informacje o przetwarzaniu
+            przez nas Twoich danych osobowych:</span
+          >
+        </p>
+        <p>
+          <strong
+            ><span style="color: #000000"
+              >1. Kategoria odnośnych danych osobowych:</span
+            ></strong
+          >
+        </p>
+        <p>
+          <span style="color: #000000"
+            >Przetwarzamy następujące kategorie odnośnych danych
+            osobowych:</span
+          ><strong
+            ><span style="color: #000000"><br /></span
+          ></strong>
+        </p>
+        <ul style="list-style-type: disc">
+          <li>
+            <span style="color: #000000"
+              >dane identyfikacyjne (tj. dane osobowe, które
+              opublikowałaś/opublikowałeś w swoim profilu w serwisie Facebook,
+              Google, Apple, LinkedIn, przede wszystkim imię, nazwisko, nick ,
+              adres e-mail i wizerunek).</span
+            ><span style="color: #000000"></span>
+          </li>
+        </ul>
+        <p>
+          <strong
+            ><span style="color: #000000"
+              >2. Źródło pochodzenia danych osobowych:<br /></span
+          ></strong>
+        </p>
+        <p>
+          <span style="color: #000000"
+            >Przetwarzamy następujące kategorie odnośnych danych
+            osobowych:</span
+          ><strong
+            ><span style="color: #000000"><br /></span
+          ></strong>
+        </p>
+        <ul style="list-style-type: disc">
+          <li>
+            <span style="color: #000000"
+              >dane identyfikacyjne (tj. dane osobowe, które
+              opublikowałaś/opublikowałeś w swoim profilu w serwisie Facebook,
+              Google, Apple, LinkedIn, przede wszystkim imię, nazwisko, nick ,
+              adres e-mail i wizerunek).</span
+            ><span style="color: #000000"></span>
+          </li>
+        </ul>
+        <p>
+          <span style="color: #000000">Twoje dane osobowe pochodzą:</span
+          ><strong><span style="color: #000000"></span></strong>
+        </p>
+        <ul>
+          <li>
+            <span style="color: #000000"
+              >z serwisu Facebook, którego administratorem jest Meta Platforms
+              Ireland,  </span
+            ><strong><span style="color: #000000"></span></strong>
+          </li>
+          <li>
+            <strong><span style="color: #000000"></span></strong
+            ><span style="color: #000000"
+              >z serwisu Google, którego administratorem jest Google Ireland
+              Ltd. </span
+            ><span style="color: #000000"></span>
+          </li>
+          <li>
+            <span style="color: #000000">
+              z serwisu Google, którego administratorem jest Google Ireland
+              Ltd.</span
+            >
+          </li>
+          <li>
+            <span style="color: #000000"
+              >LinkedIn, którego administratorem jest LinkedIn Ireland Unlimited
+              Company.
+            </span>
+          </li>
+          <li>
+            <span style="color: #000000"
+              >z konta Apple, którego administratorem jest Apple Distribution
+              International Limited;
+            </span>
+          </li>
+        </ul>
+        <p>
+          <strong
+            ><span style="color: #000000"
+              >3. Cele i podstawy prawne przetwarzania danych osobowych<br /></span
+          ></strong>
+        </p>
+        <span style="color: #000000"></span>
+        <p>
+          <span style="color: #000000"
+            >Twoje dane osobowe, które uzyskaliśmy przetwarzane będą w
+            następujących celach:
+          </span>
+        </p>
+        <table
+          style="
+            width: 100%;
+            border: 1px solid #000000;
+            border-collapse: collapse;
+            line-height: 12px;
+            font-size: 10px;
+            text-align: left;
+          "
+        >
+          <tbody>
+            <tr>
+              <th style="border: 1px solid #000000; padding: 1px">Cel</th>
+              <th style="border: 1px solid #000000; padding: 1px">
+                Dane osobowe
+              </th>
+              <th style="border: 1px solid #000000; padding: 1px">
+                Podstawa prawna przetwarzania
+              </th>
+              <th style="border: 1px solid #000000; padding: 1px">
+                Czas przechowywania danych
+              </th>
+            </tr>
+            <tr>
+              <td style="border: 1px solid #000000; padding: 1px">
+                Logowanie do konta w sklepie za pomocą profilu w serwisie
+                Facebook
+              </td>
+              <td style="border: 1px solid #000000; padding: 1px">
+                Imię, nazwisko, wizerunek
+              </td>
+              <td style="border: 1px solid #000000; padding: 1px">
+                Art. 6 ust. 1 lit. f) RODO, tj. przetwarzanie w celu realizacji
+                prawnie uzasadnionego interesu Administratora, polegającego na
+                umożliwieniu Tobie zalogowania do konta w sklepie internetowym
+                za pomocą Twojego profilu w serwisie Facebook
+              </td>
+              <td style="border: 1px solid #000000; padding: 1px">
+                Do momentu usunięcia konta w sklepie
+              </td>
+            </tr>
+            <tr>
+              <td style="border: 1px solid #000000; padding: 1px">
+                Logowanie do konta w sklepie za pomocą konta Google
+              </td>
+              <td style="border: 1px solid #000000; padding: 1px">
+                Imię, nazwisko, wizerunek
+              </td>
+              <td style="border: 1px solid #000000; padding: 1px">
+                Art. 6 ust. 1 lit. f) RODO, tj. przetwarzanie w celu realizacji
+                prawnie uzasadnionego interesu Administratora, polegającego na
+                umożliwieniu Tobie zalogowania do konta w sklepie internetowym
+                za pomocą Twojego profilu w serwisie Google
+              </td>
+              <td style="border: 1px solid #000000; padding: 1px">
+                Do momentu usunięcia konta w sklepie
+              </td>
+            </tr>
+            <tr>
+              <td style="border: 1px solid #000000; padding: 1px">
+                Logowanie do konta w sklepie za pomocą konta w serwisie LinkedIn
+              </td>
+              <td style="border: 1px solid #000000; padding: 1px">
+                Imię, nazwisko, wizerunek
+              </td>
+              <td style="border: 1px solid #000000; padding: 1px">
+                Art. 6 ust. 1 lit. f) RODO, tj. przetwarzanie w celu realizacji
+                prawnie uzasadnionego interesu Administratora, polegającego na
+                umożliwieniu Tobie zalogowania do konta w sklepie internetowym
+                za pomocą Twojego profilu w serwisie LinkedIn
+              </td>
+              <td style="border: 1px solid #000000; padding: 1px">
+                Do momentu usunięcia konta w sklepie
+              </td>
+            </tr>
+            <tr>
+              <td style="border: 1px solid #000000; padding: 1px">
+                Logowanie do konta za pomocą konta Apple
+              </td>
+              <td style="border: 1px solid #000000; padding: 1px">
+                Imię, nazwisko, wizerunek
+              </td>
+              <td style="border: 1px solid #000000; padding: 1px">
+                Art. 6 ust. 1 lit. f) RODO, tj. przetwarzanie w celu realizacji
+                prawnie uzasadnionego interesu Administratora, polegającego na
+                umożliwieniu Tobie zalogowania do konta w sklepie internetowym
+                za pomocą Twojego konta Apple
+              </td>
+              <td style="border: 1px solid #000000; padding: 1px">
+                Do momentu usunięcia konta w sklepie
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <p></p>
+        <p>
+          <span style="color: #000000"
+            ><strong
+              >JAKIE PRZYSŁUGUJĄ CI PRAWA W ZWIĄZKU Z PRZETWARZANIEM PRZEZ NAS
+              TWOICH DANYCH OSOBOWYCH?</strong
+            >
+          </span>
+        </p>
+        <p>
+          <span style="color: #000000">Na podstawie RODO masz prawo do:</span
+          ><strong
+            ><span style="color: #000000"><br /></span
+          ></strong>
+        </p>
+        <ul>
+          <li>
+            <span style="color: #000000">
+              żądania dostępu do swoich danych osobowych, </span
+            ><strong><span style="color: #000000"></span></strong>
+          </li>
+          <li>
+            <strong><span style="color: #000000"></span></strong
+            ><span style="color: #000000"
+              >żądania sprostowania swoich danych osobowych, </span
+            ><span style="color: #000000"></span>
+          </li>
+          <li>
+            <span style="color: #000000"
+              >żądania usunięcia swoich danych osobowych,
+            </span>
+          </li>
+          <li>
+            <span style="color: #000000"
+              >żądania ograniczenia przetwarzania danych osobowych,</span
+            >
+          </li>
+          <li>
+            <span style="color: #000000"
+              >wniesienia sprzeciwu wobec przetwarzania danych osobowych,</span
+            >
+          </li>
+          <li>
+            <span style="color: #000000"
+              >żądania przenoszenia danych osobowych.</span
+            >
+          </li>
+        </ul>
+        <p>
+          <span style="color: #000000"
+            >W razie zgłoszenia nam któregokolwiek z wymienionych powyższej
+            żądań bez zbędnej zwłoki – a w każdym razie w terminie miesiąca od
+            otrzymania żądania – udzielimy Ci informacji o działaniach podjętych
+            w związku ze zgłoszonym przez Ciebie żądaniem. W razie potrzeby
+            możemy wydłużyć termin miesięczny o kolejne dwa miesiące z uwagi na
+            skomplikowany charakter żądania lub liczbę żądań. W każdym wypadku
+            poinformujemy Ciebie w terminie miesiąca od otrzymania żądania o
+            przedłużeniu terminu i podamy Tobie przyczyny opóźnienia. </span
+          ><strong
+            ><span style="color: #000000"><br /></span
+          ></strong>
+        </p>
+        <p>
+          <span style="color: #000000"
+            ><strong
+              >Prawo dostępu do danych osobowych (art. 15 RODO)<br /></strong
+          ></span>
+        </p>
+        <p>
+          <span style="color: #000000"
+            >Masz prawo uzyskania informacji czy przetwarzamy Twoje dane
+            osobowe. Jeżeli przetwarzamy Twoje dane osobowe to masz prawo
+            do:</span
+          ><strong
+            ><span style="color: #000000"><br /></span
+          ></strong>
+        </p>
+        <ul>
+          <li>
+            <span style="color: #000000"> dostępu do danych osobowych,</span
+            ><strong><span style="color: #000000"></span></strong>
+          </li>
+          <li>
+            <strong><span style="color: #000000"></span></strong
+            ><span style="color: #000000"
+              >uzyskania informacji o celach przetwarzania, kategoriach
+              przetwarzanych danych osobowych, o odbiorcach lub kategoriach
+              odbiorców tych danych, planowanym okresie przechowywania Twoich
+              danych lub o kryteriach ustalania tego okresu, o prawach
+              przysługujących Ci na mocy RODO oraz o prawie wniesienia skargi do
+              Prezesa Urzędu Ochrony Danych Osobowych, o źródle tych danych, o
+              zautomatyzowanym podejmowaniu decyzji, w tym o profilowaniu oraz o
+              zabezpieczeniach stosowanych w związku z przekazaniem tych danych
+              poza Unię Europejską;</span
+            >
+          </li>
+          <li>
+            <span style="color: #000000"></span
+            ><span style="color: #000000"
+              >uzyskania kopii swoich danych osobowych.</span
+            >
+          </li>
+        </ul>
+        <p>
+          <span style="color: #000000"
+            >Jeśli chcesz zażądać dostępu do swoich danych osobowych zgłoś swoje
+            żądanie na adres: sklep@cezos.com.</span
+          >
+        </p>
+        <p>
+          <span style="color: #000000"
+            ><strong
+              >Prawo do sprostowania danych osobowych (art. 16 RODO)</strong
+            ></span
+          >
+        </p>
+        <p>
+          Jeżeli Twoje dane osobowe są nieprawidłowe masz prawo żądania od nas
+          niezwłocznego sprostowania Twoich danych osobowych. Masz też prawo do
+          żądania uzupełnienia przez nas Twoich danych osobowych. Jeśli chcesz
+          zażądać sprostowania lub uzupełnienia swoich danych osobowych zgłoś
+          swoje żądanie na adres: sklep@cezos.com.<span
+            style="color: #000000"
+          ></span>
+        </p>
+        <p>
+          <span style="color: #000000"
+            ><strong
+              >Prawo do usunięcia danych osobowych, tzw. "prawo do bycia
+              zapomnianym" (art. 17 RODO)</strong
+            ></span
+          >
+        </p>
+        <p>
+          <span style="color: #000000"
+            >Masz prawo żądania usunięcia swoich danych osobowych, gdy:</span
+          >
+        </p>
+        <ul>
+          <li>
+            <span style="color: #000000"
+              >Twoje dane osobowe przestały być niezbędne do celów, dla których
+              zostały zebrane lub w inny sposób przetwarzane;</span
+            ><strong><span style="color: #000000"></span></strong>
+          </li>
+          <li>
+            <span style="color: #000000"
+              >wycofałeś określoną zgodę, w zakresie w jakim dane osobowe były
+              przetwarzane w oparciu o Twoją zgodę;</span
+            >
+          </li>
+          <li>
+            <span style="color: #000000"
+              >Twoje dane osobowe były przetwarzane niezgodnie z prawem;</span
+            >
+          </li>
+          <li>
+            <span style="color: #000000"
+              >wniosłeś/wniosłaś sprzeciw wobec przetwarzania Twoich danych
+              osobowych na potrzeby marketingu bezpośredniego, w tym
+              profilowania, w zakresie w jakim przetwarzanie danych osobowych
+              jest związane z marketingiem bezpośrednim;</span
+            >
+          </li>
+          <li>
+            <span style="color: #000000"
+              >wniosłeś/wniosłaś sprzeciw wobec przetwarzania Twoich danych
+              osobowych w związku z przetwarzaniem niezbędnym dla wykonania
+              zadania realizowanego w interesie publicznym lub przetwarzania
+              niezbędnego dla celów wynikających z prawnie uzasadnionych
+              interesów realizowanych przez nas lub stronę trzecią.<br
+            /></span>
+          </li>
+        </ul>
+        <p>
+          Pomimo zgłoszenia żądania usunięcia danych osobowych możemy
+          przetwarzać Twoje dane dalej w celu ustalenia, dochodzenia lub obrony
+          roszczeń o czym zostaniesz poinformowany/poinformowana.<br />Jeśli
+          chcesz zażądać usunięcia swoich danych osobowych zgłoś swoje żądanie
+          na adres: sklep@cezos.com.
+        </p>
+        <p>
+          <span style="color: #000000"
+            ><strong
+              >Prawo do zgłoszenia żądania ograniczenia przetwarzania danych
+              osobowych (art. 18 RODO)<br /><br /></strong
+          ></span>
+        </p>
+        <p>
+          Masz prawo do żądania ograniczenia przetwarzania Twoich danych
+          osobowych, gdy:
+        </p>
+        <ul>
+          <li>
+            <span style="color: #000000"
+              >kwestionujesz prawidłowość swoich danych osobowych – w takim
+              wypadku ograniczymy przetwarzanie Twoich danych osobowych na czas
+              pozwalający sprawdzić prawidłowość tych danych;</span
+            ><span style="color: #000000"></span>
+          </li>
+          <li>
+            <span style="color: #000000"
+              >przetwarzanie Twoich danych jest niezgodne z prawem, a zamiast
+              usunięcia danych osobowych zażądasz ograniczenia przetwarzania
+              Twoich danych osobowych;</span
+            >
+          </li>
+          <li>
+            <span style="color: #000000"
+              >Twoje dane osobowe przestały być potrzebne do celów
+              przetwarzania, ale są one potrzebne w celu ustalenia, dochodzenia
+              lub obrony Twoich roszczeń;</span
+            >
+          </li>
+          <li>
+            <span style="color: #000000"
+              >zgłosiłeś/zgłosiłaś sprzeciw wobec przetwarzania Twoich danych
+              osobowych – do czasu stwierdzenia czy nasze prawnie uzasadnione
+              interesy są nadrzędne wobec podstaw wskazanych w Twoim
+              sprzeciwie.</span
+            ><span style="color: #000000"></span
+            ><span style="color: #000000"></span
+            ><span style="color: #000000"></span>
+          </li>
+        </ul>
+        <p>
+          <span style="color: #000000"
+            >Jeśli chcesz zażądać ograniczenia przetwarzania swoich danych
+            osobowych zgłoś swoje żądanie na adres: sklep@cezos.com.</span
+          >
+        </p>
+        <p>
+          <span style="color: #000000"
+            ><strong
+              >Prawo do sprzeciwu wobec przetwarzania danych osobowych (art. 21
+              RODO)</strong
+            ></span
+          >
+        </p>
+        <p>
+          <span style="color: #000000"
+            >Masz prawo w dowolnym momencie wnieść sprzeciw wobec przetwarzania
+            Twoich danych osobowych, w tym profilowania, w związku z:</span
+          >
+        </p>
+        <ul>
+          <li>
+            <span style="color: #000000"
+              >przetwarzaniem niezbędnym dla wykonania zadania realizowanego w
+              interesie publicznym lub przetwarzania niezbędnego dla celów
+              wynikających z prawnie uzasadnionych interesów realizowanych przez
+              Administratora danych osobowych lub stronę trzecią;</span
+            ><span style="color: #000000"></span>
+          </li>
+          <li>
+            <span style="color: #000000"
+              >przetwarzaniem na potrzeby marketingu bezpośredniego.</span
+            ><span style="color: #000000"></span>
+          </li>
+        </ul>
+        <p>
+          <span style="color: #000000"
+            >Jeśli chcesz zgłosić sprzeciw wobec przetwarzania Twoich danych
+            osobowych zgłoś swoje żądanie na adres: sklep@cezos.com.</span
+          >
+        </p>
+        <p>
+          <span style="color: #000000"
+            ><strong
+              >Prawo do żądania przenoszenia danych osobowych (art. 20
+              RODO)</strong
+            ></span
+          >
+        </p>
+        <p>
+          <span style="color: #000000"
+            >Masz prawo otrzymać od nas swoje dane osobowe w ustrukturyzowanym,
+            powszechnie używanym formacie nadającym się do odczytu maszynowego
+            oraz przesłać je innemu administratorowi danych osobowych.<br />Standardowo
+            udostępnimy Ci Twoje dane osobowe w formacie CSV. Jeśli wolisz aby
+            dane zostały Ci udostępnione w innym formacie wskaż preferowany
+            format w swoim żądaniu. W miarę możliwości postaramy się udostępnić
+            Ci dane w preferowanym przez Ciebie formacie.<br />Możesz również
+            zażądać, abyśmy przesłali Twoje dane osobowe bezpośrednio innemu
+            administratorowi (o ile jest to technicznie możliwe).<br />Jeśli
+            chcesz zażądać przeniesienia swoich danych osobowych zgłoś swoje
+            żądanie na adres: sklep@cezos.com.<br
+          /></span>
+        </p>
+        <p>
+          <span style="color: #000000"
+            ><strong
+              >Czy możesz cofnąć wyrażoną zgodę na przetwarzanie danych
+              osobowych?</strong
+            ></span
+          >
+        </p>
+        <p>
+          <span style="color: #000000"
+            >Możesz cofnąć udzieloną zgodę na przetwarzanie swoich danych
+            osobowych w dowolnym momencie. Cofnięcie zgody na przetwarzanie
+            danych osobowych nie ma wpływu na zgodność z prawem przetwarzania
+            dokonanego przez nas na podstawie Twojej zgody przed jej cofnięciem.
+            Jeśli chcesz cofnąć zgodę na przetwarzanie swoich danych osobowych
+            zgłoś swoje żądanie na adres: sklep@cezos.com.<br />W przypadku, gdy
+            chcesz cofnąć zgodę na przetwarzanie danych osobowych w celu
+            świadczenia usługi "Newsletter" możesz z niego zrezygnować
+            tutaj.</span
+          >
+        </p>
+        <p>
+          <span style="color: #000000"
+            ><strong>Skarga do organu nadzorczego</strong></span
+          >
+        </p>
+        <p>
+          <span style="color: #000000"
+            >Jeżeli sądzisz, że przetwarzanie Twoich danych osobowych narusza
+            przepisy ochrony danych osobowych masz prawo złożenia skargi do
+            organu nadzorczego, w szczególności w państwie członkowskim swojego
+            zwykłego pobytu, swojego miejsca pracy lub miejsca popełnienia
+            domniemanego naruszenia. W Polsce organem nadzorczym w rozumieniu
+            RODO jest Prezes Urzędu Ochrony Danych Osobowych, który z dniem 25
+            maja 2018 roku zastąpił GIODO. Więcej informacji znajdziesz
+            <a href="https://uodo.gov.pl/pl/492/2464">tutaj.</a><br
+          /></span>
+        </p>
+        <p></p>
+      </div>
+    </div>
+  </div>
+</div>
